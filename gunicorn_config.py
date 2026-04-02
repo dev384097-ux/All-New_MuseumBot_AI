@@ -1,10 +1,12 @@
+import os
 import multiprocessing
 
 # Worker Settings
-# Formula: (2 * workers) + 1
-workers = multiprocessing.cpu_count() * 2 + 1
-worker_class = 'sync'
-threads = 2
+# Respect WEB_CONCURRENCY (Render default is 1 for free tier)
+# This prevents OOM errors on limited RAM instances
+workers = int(os.environ.get('WEB_CONCURRENCY', 2))
+worker_class = 'gthread'
+threads = 4
 timeout = 120
 
 # Network Settings
