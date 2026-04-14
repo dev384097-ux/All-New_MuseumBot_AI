@@ -16,9 +16,9 @@ MAX_RETRIES = 1
 DEFAULT_RETRY_DELAY = 1.0  # seconds
 MAX_TOKENS = 1000
 MODEL_PRIORITY = [
+    'gemini-1.5-flash-8b',    # Often has separate/higher availability
+    'gemini-flash-latest',    # Shown to work in user logs (returned 429)
     'gemini-1.5-flash',
-    'gemini-flash-latest',
-    'gemini-1.5-flash-latest',
     'gemini-2.0-flash',
 ]
 
@@ -163,6 +163,8 @@ class MuseumChatbot:
                 # Try both the bare name and the "models/" prefixed name
                 for model_name in [base_model_name, f"models/{base_model_name}"]:
                     try:
+                        # Small delay to avoid triggering 429s during rapid-fire smoke tests
+                        time.sleep(2)
                         print(f"DEBUG: Attempting smoke test for {model_name}...")
                         # Smoke Test: Single-token generation verifies API access and model existence
                         self.client.models.generate_content(
