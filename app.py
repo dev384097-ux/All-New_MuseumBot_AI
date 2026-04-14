@@ -49,11 +49,6 @@ if not os.path.exists(os.path.join(os.path.dirname(__file__), 'data', 'museum.db
 
 chatbot = MuseumChatbot()
 
-@app.route('/debug-oauth')
-def debug_oauth():
-    uri = url_for('google_callback', _external=True).strip()
-    return f"DEBUG: The app is sending this Redirect URI to Google: <b>'{uri}'</b> (Spaces removed)"
-
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
