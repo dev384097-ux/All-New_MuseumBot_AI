@@ -39,13 +39,15 @@ google = oauth.register(
     client_kwargs={'scope': 'openid email profile'}
 )
 
-# Mail Configuration
+# SMTP Configuration (Port 587 is standard for Render/Heroku)
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
+# Aggressively sanitize password (remove all spaces as Gmail app passwords are internally spaceless)
+password = os.getenv('MAIL_PASSWORD', '').replace(' ', '').strip()
 app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME', '').strip()
-app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD', '').strip()
+app.config['MAIL_PASSWORD'] = password
 app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME', '').strip()
 app.config['MAIL_DEBUG'] = True
 
@@ -220,8 +222,11 @@ def google_callback():
             return redirect(url_for('verify_otp'))
         except Exception as e:
             print(f"CRITICAL SMTP ERROR: {str(e)}")
-            flash(f"Error sending verification email: {str(e)}. Check your Gmail App Password settings.")
-            return redirect(url_for('login'))
+            print(f"[FAIL-SAFE] OTP for {email} is: {otp}")
+            flash(f"Email service temporarily unreachable. Code has been logged to the server console for developers.", "warning")
+            session['temp_email'] = email
+            session['temp_name'] = name
+            return redirect(url_for('verify_otp'))
             
     except Exception as e:
         print(f"CRITICAL OAUTH CALLBACK ERROR: {str(e)}")
