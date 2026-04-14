@@ -10,6 +10,8 @@ from chatbot_engine import MuseumChatbot
 from database import init_db, get_db_connection
 from authlib.integrations.flask_client import OAuth
 from flask_mail import Mail, Message
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail as SendGridMail
 
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -215,6 +217,28 @@ def google_callback():
         print(f"DEBUG: Attempting to send OTP email to {email}...")
         print(f"[FAIL-SAFE] OTP for {email} is: {otp}")
         
+        # 3a. Try SendGrid API (Recommended for Render)
+        sendgrid_key = os.getenv('SENDGRID_API_KEY', '').strip()
+        if sendgrid_key:
+            print("DEBUG: Using SendGrid API for delivery...")
+            try:
+                sg_client = SendGridAPIClient(sendgrid_key)
+                sender = os.getenv('SENDER_EMAIL', app.config['MAIL_USERNAME']).strip()
+                message = SendGridMail(
+                    from_email=sender,
+                    to_emails=email,
+                    subject="Your MuseumBot Verification Code",
+                    plain_text_content=f"Hello {name},\n\nYour One-Time Password (OTP) for MuseumBot is: {otp}\n\nPlease enter this on the verification page to complete your login."
+                )
+                sg_client.send(message)
+                print("DEBUG: Email sent via SendGrid successfully!")
+                session['temp_email'] = email
+                session['temp_name'] = name
+                return redirect(url_for('verify_otp'))
+            except Exception as sg_err:
+                print(f"DEBUG: SendGrid API failed: {str(sg_err)}")
+        
+        # 3b. Fallback to Standard SMTP (if SendGrid not configured)
         try:
             # Set a local timeout for this send attempt (5 seconds)
             import socket

@@ -41,6 +41,7 @@ pydantic_core==2.41.5
 pyparsing==3.3.2
 python-dotenv==1.2.2
 qrcode==8.2
+sendgrid
 regex==2026.3.32
 requests==2.33.1
 six==1.17.0
