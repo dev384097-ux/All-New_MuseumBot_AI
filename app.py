@@ -139,8 +139,12 @@ def login_google():
         }
         return google_mock_callback(mock_user)
         
-    # Use the standard ProxyFix-aware url_for
-    return google.authorize_redirect(url_for('google_callback', _external=True))
+    # Explicitly force HTTPS for the redirect URI on Render to avoid protocol mismatch
+    redirect_uri = url_for('google_callback', _external=True)
+    if IS_RENDER and redirect_uri.startswith('http://'):
+        redirect_uri = redirect_uri.replace('http://', 'https://')
+        
+    return google.authorize_redirect(redirect_uri)
 
 def google_mock_callback(user_info):
     email = user_info['email']
