@@ -176,11 +176,9 @@ def google_mock_callback(user_info):
 @app.route('/auth/callback')
 def google_callback():
     try:
-        # 1. Authorize Token
+        # 1. Authorize Token (Protocol handled automatically by ProxyFix/IS_RENDER)
         print("DEBUG: Initiating Google authorize_access_token...")
-        scheme = 'https' if IS_RENDER else 'http'
-        redirect_uri = url_for('google_callback', _external=True, _scheme=scheme).strip()
-        token = google.authorize_access_token(redirect_uri=redirect_uri)
+        token = google.authorize_access_token()
         
         user_info = token.get('userinfo')
         if not user_info:
