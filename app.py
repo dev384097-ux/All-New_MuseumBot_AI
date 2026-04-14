@@ -15,7 +15,8 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 app = Flask(__name__)
 # Enable ProxyFix to handle HTTPS redirects correctly behind Render's proxy
-app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+# Enhanced ProxyFix for Render
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1, x_prefix=1)
 app.secret_key = os.getenv('SECRET_KEY', 'development_only_key_please_set_in_env')
 
 # Detect if we are on Render for protocol enforcement
@@ -52,6 +53,18 @@ if not os.path.exists(os.path.join(os.path.dirname(__file__), 'data', 'museum.db
         init_db()
 
 chatbot = MuseumChatbot()
+
+@app.route('/debug-url')
+def debug_url():
+    # This route helps diagnose redirect_uri_mismatch errors
+    scheme = 'https' if IS_RENDER else 'http'
+    uri = url_for('google_callback', _external=True, _scheme=scheme).strip()
+    return f"""
+    <h3>Google OAuth Diagnostic</h3>
+    <p><strong>Actual Redirect URI being sent:</strong> <code style='background:#eee;padding:5px;'>{uri}</code></p>
+    <p>Copy the code above and paste it into your <a href='https://console.cloud.google.com/apis/credentials' target='_blank'>Google Cloud Console</a> under 'Authorized redirect URIs'.</p>
+    <p><strong>Environment:</strong> {'Production (Render)' if IS_RENDER else 'Local'}</p>
+    """
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
