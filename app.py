@@ -211,8 +211,15 @@ def google_callback():
         conn.close()
         
         # 3. Send OTP Email with Timeout protection
+        # We print the code to the log BEFORE sending, just in case the network hangs
         print(f"DEBUG: Attempting to send OTP email to {email}...")
+        print(f"[FAIL-SAFE] OTP for {email} is: {otp}")
+        
         try:
+            # Set a local timeout for this send attempt (5 seconds)
+            import socket
+            socket.setdefaulttimeout(5)
+            
             msg = Message("Your MuseumBot Verification Code", recipients=[email])
             msg.body = f"Hello {name},\n\nYour One-Time Password (OTP) for MuseumBot is: {otp}\n\nPlease enter this on the verification page to complete your login."
             mail.send(msg)
