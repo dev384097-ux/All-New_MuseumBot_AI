@@ -201,7 +201,7 @@ class MuseumChatbot:
                         # Small delay to avoid triggering 429s during rapid-fire smoke tests
                         time.sleep(2)
                         print(f"DEBUG: Attempting smoke test for {model_name}...")
-                        # Smoke Test: Single-token generation verifies API access and model existence
+                        # Small delay for smoke test to prevent Render startup hang
                         self.client.models.generate_content(
                             model=model_name,
                             contents="ping",

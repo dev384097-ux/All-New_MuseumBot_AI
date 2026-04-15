@@ -168,13 +168,18 @@ async function processManualPayment() {
             // --- NEW DYNAMIC SCANNER FLOW ---
             document.getElementById('qrPlaceholder').style.display = 'flex';
             document.getElementById('dynamicQR').style.display = 'none';
-            document.getElementById('payStatusLabel').textContent = "Generating Scanner...";
+            document.getElementById('payStatusLabel').textContent = "Handshaking with Server...";
             document.getElementById('qrAmount').textContent = total.toFixed(2);
 
             const qrResp = await fetch('/api/generate_upi_qr', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ order_id: orderId, amount: total })
+                body: JSON.stringify({ 
+                    order_id: orderId, 
+                    amount: total,
+                    museum: museum,
+                    visitor_name: visitor
+                })
             });
 
             console.log("QR Response Received Status:", qrResp.status);
@@ -291,7 +296,7 @@ async function demoPaymentFlow(museum, visitor, total, btn, originalContent) {
     // Enhanced Demo Mode to show the scanner even without real keys
     document.getElementById('qrPlaceholder').style.display = 'flex';
     document.getElementById('dynamicQR').style.display = 'none';
-    document.getElementById('payStatusLabel').textContent = "Generating Demo Scanner...";
+    document.getElementById('payStatusLabel').textContent = "Handshaking with Server...";
     document.getElementById('qrAmount').textContent = total.toFixed(2);
     
     await new Promise(r => setTimeout(r, 800));
@@ -308,7 +313,10 @@ async function demoPaymentFlow(museum, visitor, total, btn, originalContent) {
         })
     });
 
-    if (!qrResp.ok) throw new Error("Backend failed to generate demo QR");
+    if (!qrResp.ok) {
+        const errData = await qrResp.json().catch(() => ({}));
+        throw new Error(errData.message || `Server Error ${qrResp.status}`);
+    }
     
     const qrData = await qrResp.json();
     
@@ -457,49 +465,6 @@ function handleKeyPress(e) {
     if (e.key === 'Enter') sendMessage();
 }
 
-function openPaymentModal(amount, museum, ticketCount, visitDate) {
-    document.getElementById('bookingModal').style.display = 'flex';
-    
-    // Set variables from chatbot data
-    qty = ticketCount || 1;
-    selectedPrice = amount / qty; 
-    selectedTier = "AI Assistant Booking";
-    
-    // Update the dropdown if a museum was provided
-    if (museum) {
-        const museumSelect = document.getElementById('museumSelect');
-        for (let i = 0; i < museumSelect.options.length; i++) {
-            if (museumSelect.options[i].text === museum) {
-                museumSelect.selectedIndex = i;
-                break;
-            }
-        }
-    }
-
-    // Update the date input if provided
-    if (visitDate) {
-        const dateInput = document.getElementById('visitDate');
-        if (dateInput) {
-            try {
-                dateInput.value = visitDate; 
-            } catch(e) {}
-        }
-    }
-
-    // Sync UI elements
-    const qtyElement = document.getElementById('qtyVal');
-    if (qtyElement) qtyElement.textContent = qty.toString().padStart(2, '0');
-    
-    // Jump to the Checkout step (this triggers a default updateSummary)
-    goStep(3);
-
-    // CRITICAL: Override the summary date AFTER goStep(3) because updateSummary() 
-    // reads from the date input which may be empty if the bot provided natural language (e.g. "Tomorrow")
-    if (visitDate) {
-        const sumDate = document.getElementById('sumDate');
-        if (sumDate) sumDate.textContent = visitDate;
-    }
-}
 
 // --- GLOBAL UI EFFECTS ---
 const revealObs = new IntersectionObserver(entries => {

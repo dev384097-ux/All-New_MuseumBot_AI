@@ -463,19 +463,28 @@ def generate_upi_qr():
         # We set expire_by to 15 mins from now
         expire_time = int(time.time() + 900) 
         
-        pl_data = {
-            "amount": paise_amount,
-            "currency": "INR",
-            "description": f"Ticket for {museum_title}"
-        }
+        payment_link_id = None
         
-        payment_link = rzp_client.payment_link.create(data=pl_data)
-        short_url = payment_link['short_url']
-        link_id = payment_link['id']
+        # Only try Razorpay Link if keys are not placeholders
+        key_id = os.getenv('RAZORPAY_KEY_ID', '')
+        if 'test_Sdudj7bf' in key_id or not key_id:
+            # Fallback to Manual UPI for security/simplicity if no real keys
+            upi_id = os.getenv('BUSINESS_UPI_ID', 'guptadev853@okaxis')
+            amount_val = "{:.2f}".format(float(amount))
+            upi_url = f"upi://pay?pa={upi_id}&pn=MuseumBot&am={amount_val}&cu=INR"
+        else:
+            pl_data = {
+                "amount": paise_amount,
+                "currency": "INR",
+                "description": f"Ticket for {museum_title}"
+            }
+            payment_link = rzp_client.payment_link.create(data=pl_data)
+            upi_url = payment_link['short_url']
+            payment_link_id = payment_link['id']
         
-        # Now generate a QR code for this professional short URL
+        # Now generate a QR code for the URL (Verified Link or Manual UPI)
         qr = qrcode.QRCode(version=1, box_size=10, border=4)
-        qr.add_data(short_url)
+        qr.add_data(upi_url)
         qr.make(fit=True)
         img = qr.make_image(fill_color="black", back_color="white")
         
@@ -486,14 +495,14 @@ def generate_upi_qr():
         return jsonify({
             'success': True, 
             'qr_code': f"data:image/png;base64,{img_str}",
-            'payment_link_id': link_id
+            'payment_link_id': payment_link_id
         })
     except Exception as e:
         print(f"QR/Link Generation Error: {str(e)}")
-        # Fallback to manual UPI if Razorpay Link creation fails (e.g. Test mode limitations)
+        # Ultimate Fallback for Render issues (e.g. library conflict)
         return jsonify({
             'success': False, 
-            'message': f"Razorpay Link Error: {str(e)}"
+            'message': f"Production Error: {str(e)}. Please check Render Logs."
         }), 500
 
 @app.route('/api/check_payment_status', methods=['POST'])
