@@ -77,7 +77,7 @@ h1, h2, h3, .logo {
 }
 
 .nav-links a {
-    color: var(--text-muted);
+    color: var(--text-primary);
     text-decoration: none;
     font-size: 0.85rem;
     letter-spacing: 1px;

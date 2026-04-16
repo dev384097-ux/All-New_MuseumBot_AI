@@ -16,8 +16,9 @@
     <nav id="navbar">
         <a class="logo" href="/">Museum<span>Bot</span></a>
         <ul class="nav-links">
-            <li><a href="#features">Capabilities</a></li>
-            <li><a href="#how">How it Works</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="#artifacts">Treasure of India</a></li>
+            <li><a href="#how">Important Things</a></li>
 
             {% if logged_in %}
             <li class="nav-user-info">
@@ -97,7 +98,7 @@
     </section>
 
     <!-- ARTIFACT GALLERY -->
-    <section class="artifact-section">
+    <section id="artifacts" class="artifact-section">
         <span class="section-tag reveal">Visual Legacy</span>
         <h2 class="reveal">Treasurers of India: <em>The Artifact Collection</em></h2>
         <div class="artifact-grid">
@@ -162,11 +163,9 @@
 
 
 
-    <!-- STATS -->
-    <div style="background: var(--bg-surface); padding: 80px 8%; border-top: 1px solid var(--border-gold); border-bottom: 1px solid var(--border-gold); text-align: left;">
-        <span class="section-tag reveal">Platform Impact</span>
-        <h2 class="reveal">Efficiency by the <em>Numbers</em></h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-top: 50px;">
+    <!-- STATS (Header removed, content follows Platform Impact section or serves as standalone) -->
+    <div style="background: var(--bg-surface); padding: 40px 8% 80px; border-bottom: 1px solid var(--border-gold); text-align: left;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px;">
             <div class="reveal">
                 <div style="font-family: 'Playfair Display'; font-size: 3rem; color: var(--primary-gold); margin-bottom: 10px;">0</div>
                 <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;">Queue wait time</div>
@@ -188,8 +187,8 @@
 
     <!-- FEATURES -->
     <section id="features">
-        <span class="section-tag reveal">Core Capabilities</span>
-        <h2 class="reveal">Everything a visitor <em>needs</em></h2>
+        <span class="section-tag reveal">Platform Impact</span>
+        <h2 class="reveal">Efficiency by the <em>Numbers</em></h2>
         <div class="feature-grid">
             <div class="feature-card reveal">
                 <div class="feature-icon">🎫</div>
@@ -215,7 +214,7 @@
     </section>
 
     <!-- HOW IT WORKS -->
-    <section id="how" style="background: var(--bg-surface);">
+    <section style="background: var(--bg-surface);">
         <span class="section-tag reveal">Visitor Journey</span>
         <h2 class="reveal">Book in <em>4 steps</em></h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-top: 60px;">
@@ -525,9 +524,9 @@
 
 
     <!-- ESSENTIAL VISITOR GUIDE -->
-    <section class="visitor-guide">
-        <span class="section-tag reveal">Essential Info</span>
-        <h2 class="reveal">Visitor <em>Guidelines &amp; Schedule</em></h2>
+    <section id="how" class="visitor-guide">
+        <span class="section-tag reveal">Important Things</span>
+        <h2 class="reveal">Essential <em>Guidelines &amp; Schedule</em></h2>
         <div class="guide-grid">
             <div class="guide-item reveal">
                 <i class="fa-solid fa-clock"></i>
@@ -587,7 +586,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <span>© 2025 MuseumBot · Smart India Hackathon</span>
+            <span>© 2026 MuseumBot · Smart India Hackathon</span>
             <span>NCSM · Ministry of Culture · Govt. of India</span>
         </div>
     </footer>
