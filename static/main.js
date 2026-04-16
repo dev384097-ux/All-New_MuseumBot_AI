@@ -2,11 +2,17 @@
 let currentStep = 1;
 let selectedPrice = 100;
 let selectedTier = "Adult";
-let qty = 2;
+let qty = 1;
 let selectedPaymentMethod = 'upi';
 let payPollInterval = null;
 
 function openBooking() {
+    const today = new Date().toISOString().split('T')[0];
+    const dateInput = document.getElementById('visitDate');
+    if (dateInput) {
+        dateInput.setAttribute('min', today);
+    }
+    
     document.getElementById('bookingModal').style.display = 'flex';
     goStep(1);
     updateSummary();
@@ -21,6 +27,22 @@ function handleOverlayClick(e) {
 }
 
 function goStep(step) {
+    if (step === 3) {
+        if (selectedTier === 'Group' && qty < 5) {
+            alert('Group Booking Error: You must have a minimum of 5 members to qualify for the Group Discount tier. Please add more members.');
+            return;
+        }
+        
+        if ((selectedTier === 'Group' || selectedTier === 'Student') && qty > 1) {
+            const text = document.getElementById('additionalGuests').value;
+            const namesCount = text.split(/[,|\n]+/).map(n => n.trim()).filter(n => n.length > 0).length;
+            if (namesCount < qty - 1) {
+                alert(`Security Policy: For ${selectedTier} tier bookings, you must explicitly provide the names of all ${qty - 1} additional members. Please separate each name with a comma.`);
+                return;
+            }
+        }
+    }
+
     // Hide all panels
     document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
     // Show target
@@ -36,7 +58,17 @@ function goStep(step) {
         }
     }
 
-    if (step === 3) updateSummary();
+    if (step === 3) {
+        updateSummary();
+        if (selectedPaymentMethod === 'upi') {
+            document.getElementById('payBtn').style.display = 'none';
+            if (!window.upiQRGenerated) {
+                processManualPayment();
+            }
+        } else {
+            document.getElementById('payBtn').style.display = 'inline-block';
+        }
+    }
 }
 
 function selectTicket(el, price, tier) {
@@ -44,20 +76,68 @@ function selectTicket(el, price, tier) {
     el.classList.add('selected');
     selectedPrice = price;
     selectedTier = tier;
+    
     updateSummary();
 }
 
 function changeQty(delta) {
     qty = Math.max(1, qty + delta);
-    document.getElementById('qtyVal').textContent = qty.toString().padStart(2, '0');
+    document.getElementById('qtyVal').value = qty;
+    updateSummary();
+}
+
+function manualQty() {
+    let val = parseInt(document.getElementById('qtyVal').value);
+    if(isNaN(val) || val < 1) val = 1;
+    qty = val;
+    document.getElementById('qtyVal').value = qty;
+    updateSummary();
+}
+
+function autoUpdateQty() {
+    const input = document.getElementById('additionalGuests');
+    const text = input.value;
+    
+    // Split by commas OR newlines, trim spaces, and ignore empty strings
+    const namesCount = text.split(/[,|\n]+/).map(n => n.trim()).filter(n => n.length > 0).length;
+    
+    // Minimum 1 ticket (for the lead visitor)
+    if (namesCount > 0) {
+        qty = namesCount + 1;
+        document.getElementById('qtyVal').value = qty;
+    } else {
+        // If they delete names, safely return to 1
+        qty = 1;
+        document.getElementById('qtyVal').value = qty;
+    }
+    
+    // Auto-migrate to Group Tier securely if they cross threshold
+    if (qty >= 5 && selectedTier !== 'Student') {
+        const groupCard = document.querySelector('.ticket-card-mini:nth-child(3)');
+        if(groupCard && selectedTier !== 'Group') {
+            document.querySelectorAll('.ticket-card-mini').forEach(t => t.classList.remove('selected'));
+            groupCard.classList.add('selected');
+            selectedPrice = 80;
+            selectedTier = 'Group';
+        }
+    }
+    
     updateSummary();
 }
 
 function updateSummary() {
     const museum = document.getElementById('museumSelect').value || "Not Selected";
-    const date = document.getElementById('visitDate').value || "Not Selected";
+    let dateStr = document.getElementById('visitDate').value || "Not Selected";
     const visitor = document.getElementById('visitorName').value || "Guest";
     const total = selectedPrice * qty;
+
+    // Convert ISO date (e.g. 2026-04-16) to readable format (e.g. 16 Apr 2026)
+    if (dateStr && /^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        try {
+            const dateObj = new Date(dateStr);
+            dateStr = dateObj.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+        } catch (e) {}
+    }
 
     // Update Sidebar
     const sumMuseum = document.getElementById('sumMuseum');
@@ -66,7 +146,7 @@ function updateSummary() {
     const sumTotal = document.getElementById('sumTotal');
 
     if(sumMuseum) sumMuseum.textContent = museum.split(',')[0];
-    if(sumDate) sumDate.textContent = date;
+    if(sumDate) sumDate.textContent = dateStr;
     if(sumQty) sumQty.textContent = `${qty} × ${selectedTier}`;
     if(sumTotal) sumTotal.textContent = `₹${total}`;
 
@@ -84,11 +164,15 @@ function selectPayment(method, el) {
     if(method === 'upi') {
         document.getElementById('payUPI').style.display = 'block';
         document.getElementById('payCard').style.display = 'none';
-        // Auto-initialize QR display if not yet shown
+        document.getElementById('payBtn').style.display = 'none';
         document.getElementById('qrAmount').textContent = (selectedPrice * qty).toFixed(2);
+        if (!window.upiQRGenerated) {
+            processManualPayment();
+        }
     } else if(method === 'card') {
         document.getElementById('payUPI').style.display = 'none';
         document.getElementById('payCard').style.display = 'block';
+        document.getElementById('payBtn').style.display = 'inline-block';
     }
 }
 
@@ -107,15 +191,27 @@ function openPaymentModal(total, museumTitle, count, visitDate, visitorName) {
     }
     
     if(visitorName) document.getElementById('visitorName').value = visitorName;
-    if(visitDate) document.getElementById('visitDate').value = visitDate;
+    if(visitDate) {
+        const dateInput = document.getElementById('visitDate');
+        // If not a strict ISO date, fallback to text so the browser doesn't reject natural language like "Tomorrow"
+        if (!/^[\d]{4}-[\d]{2}-[\d]{2}$/.test(visitDate)) {
+            dateInput.type = "text";
+        } else {
+            dateInput.type = "date";
+        }
+        dateInput.value = visitDate;
+    }
     
     qty = count;
     document.getElementById('qtyVal').textContent = qty.toString().padStart(2, '0');
     
-    // 3. Set Price/Tier logic (Student = ₹1, else Adult/Standard)
+    // 3. Set Price/Tier logic
     if (total / count === 1) {
         selectedPrice = 1;
         selectedTier = "Student";
+    } else if (total / count === 80) {
+        selectedPrice = 80;
+        selectedTier = "Group";
     } else {
         selectedPrice = total / count;
         selectedTier = "Adult";
@@ -123,6 +219,7 @@ function openPaymentModal(total, museumTitle, count, visitDate, visitorName) {
     
     // 4. Update UI and jump to Payment
     updateSummary();
+    window.upiQRGenerated = false; // Reset generation lock
     goStep(3);
 }
 
@@ -194,6 +291,7 @@ async function processManualPayment() {
                 document.getElementById('dynamicQR').style.display = 'block';
                 document.getElementById('payStatusLabel').textContent = "Scan & Pay Now";
                 document.getElementById('payStatusSub').style.display = 'block';
+                window.upiQRGenerated = true;
                 
                 // Start Polling
                 startPaymentPolling(orderId, museum, visitor, total, qrData.payment_link_id);
@@ -228,8 +326,32 @@ async function processManualPayment() {
                     const verifyData = await verifyResp.json();
                     if (verifyData.success) {
                         document.getElementById('ticketNum').textContent = verifyData.ticket_no;
-                        document.getElementById('ticketVisitorText').textContent = visitor || "Valued Guest";
+                        
+                        let additionalNames = document.getElementById('additionalGuests').value.trim();
+                        let displayName = visitor || "Valued Guest";
+                        
+                        if (additionalNames) {
+                            displayName += `, ${additionalNames}`;
+                        } else if (qty > 1) {
+                            displayName += ` (+${qty-1})`;
+                        }
+                        
+                        // Prevent UI overflow from massive lists
+                        if (displayName.length > 80) displayName = displayName.substring(0, 77) + "...";
+                        
+                        const ticketVisitorEl = document.getElementById('ticketVisitorText');
+                        if (displayName.length > 45) ticketVisitorEl.style.fontSize = "0.7rem";
+                        else if (displayName.length > 25) ticketVisitorEl.style.fontSize = "0.85rem";
+                        else ticketVisitorEl.style.fontSize = "1.1rem"; // default
+                        
+                        ticketVisitorEl.textContent = displayName;
                         document.getElementById('ticketMuseumText').textContent = museum;
+                        
+                        // New injected fields
+                        const dateInputVal = document.getElementById('visitDate').value;
+                        document.getElementById('ticketDateText').textContent = dateInputVal ? dateInputVal : "Not Selected";
+                        document.getElementById('ticketPayModeText').textContent = "Card / Netbanking";
+                        
                         goStep(4);
                     } else {
                         alert("Payment Verification Failed: " + verifyData.message);
@@ -282,8 +404,31 @@ function startPaymentPolling(orderId, museum, visitor, total, linkId = null) {
             if (data.success && data.paid) {
                 clearInterval(payPollInterval);
                 document.getElementById('ticketNum').textContent = data.ticket_no === 'ALREADY_EXISTS' ? 'CONFIRMED' : data.ticket_no;
-                document.getElementById('ticketVisitorText').textContent = visitor || "Valued Guest";
+                
+                let additionalNames = document.getElementById('additionalGuests').value.trim();
+                let displayName = visitor || "Valued Guest";
+                
+                if (additionalNames) {
+                    displayName += `, ${additionalNames}`;
+                } else if (qty > 1) {
+                    displayName += ` (+${qty-1})`;
+                }
+                
+                if (displayName.length > 80) displayName = displayName.substring(0, 77) + "...";
+                
+                const ticketVisitorEl = document.getElementById('ticketVisitorText');
+                if (displayName.length > 45) ticketVisitorEl.style.fontSize = "0.7rem";
+                else if (displayName.length > 25) ticketVisitorEl.style.fontSize = "0.85rem";
+                else ticketVisitorEl.style.fontSize = "1.1rem";
+                
+                ticketVisitorEl.textContent = displayName;
                 document.getElementById('ticketMuseumText').textContent = museum;
+                
+                // New injected fields
+                const dateInputVal = document.getElementById('visitDate').value;
+                document.getElementById('ticketDateText').textContent = dateInputVal ? dateInputVal : "Not Selected";
+                document.getElementById('ticketPayModeText').textContent = "UPI Transfer";
+                
                 goStep(4);
             }
         } catch (err) {
@@ -326,7 +471,8 @@ async function demoPaymentFlow(museum, visitor, total, btn, originalContent) {
         document.getElementById('dynamicQR').style.display = 'block';
         document.getElementById('payStatusLabel').textContent = "DEMO SCANNER (Mock)";
         document.getElementById('payStatusSub').style.display = 'block';
-        document.getElementById('payStatusSub').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Simulating Verification (5s)...';
+        document.getElementById('payStatusSub').innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Awaiting Mock Payment Scan... Simulator Active';
+        window.upiQRGenerated = true;
         
         // Start polling even in demo for consistency
         startPaymentPolling(null, museum, visitor, total, qrData.payment_link_id);
@@ -346,11 +492,18 @@ async function downloadTicket() {
     if (!ticketDiv) return;
     
     try {
+        // Prepare ticket for clean PNG export
+        ticketDiv.classList.add('download-mode');
+        
         // Use html2canvas to convert the ticket component to an image
         const canvas = await html2canvas(ticketDiv, {
             scale: 2, // Enhances quality
-            backgroundColor: '#11111d' 
+            backgroundColor: null, // Enables transparent corners
+            useCORS: true
         });
+        
+        // Revert ticket to UI mode
+        ticketDiv.classList.remove('download-mode');
         
         // Trigger download
         const link = document.createElement('a');
@@ -421,6 +574,10 @@ async function sendMessage(text) {
     }
 }
 
+function handleKeyPress(e) {
+    if (e.key === 'Enter') sendMessage();
+}
+
 function quickAction(text) {
     sendMessage(text);
 }
@@ -461,12 +618,159 @@ function appendBotMessage(html) {
     chatBody.scrollTop = chatBody.scrollHeight;
 }
 
-function handleKeyPress(e) {
-    if (e.key === 'Enter') sendMessage();
+function handleOverlayClick(e) {
+    if (e.target.id === 'bookingModal') closeBooking();
+    if (e.target.id === 'discoveryOverlay') closeDiscovery();
 }
 
+// --- ARTIFACT DISCOVERY SYSTEM ---
 
-// --- GLOBAL UI EFFECTS ---
+const ARTICLE_DATA = {
+    // HERITAGE SITES
+    'delhi': {
+        title: "National Museum New Delhi",
+        tag: "Premier Destination",
+        image: "/static/images/national_museum_delhi.png",
+        era: "Pre-historic to Modern",
+        location: "Janpath, New Delhi",
+        text: "<p>The National Museum in New Delhi, also known as the National Museum of India, is one of the largest museums in India. Established in 1949, it holds a variety of articles ranging from pre-historic era to modern works of art.</p><p>It functions under the Ministry of Culture, Government of India. The museum is situated on Janpath. The blueprint of the National Museum was prepared by the Maurice Gwyer Committee in May 1946. Today, it houses over 200,000 works of art, both of Indian and foreign origin, covering more than 5,000 years of cultural heritage.</p>"
+    },
+    'kolkata': {
+        title: "Indian Museum Kolkata",
+        tag: "Heritage Landmark",
+        image: "/static/images/indian_museum_kolkata.png",
+        era: "Established 1814",
+        location: "Jawaharlal Nehru Rd, Kolkata",
+        text: "<p>The Indian Museum in Central Kolkata, West Bengal, India, also referred to as the Imperial Museum at Calcutta in colonial-era texts, is the ninth oldest museum in the world, the oldest museum in India, and the largest museum in India.</p><p>It has rare collections of antiques, armor and ornaments, fossils, skeletons, mummies, and Mughal paintings. It was founded by the Asiatic Society of Bengal in Kolkata, India, in 1814. The founder curator was Nathaniel Wallich, a Danish botanist.</p>"
+    },
+    'hyderabad': {
+        title: "Salar Jung Museum",
+        tag: "Individual Collection",
+        image: "/static/images/salar_jung_museum.png",
+        era: "19th - 20th Century",
+        location: "Darushifa, Hyderabad",
+        text: "<p>The Salar Jung Museum is an art museum located at Dar-ul-Shifa, on the southern bank of the Musi River in the city of Hyderabad, Telangana, India. It is one of the three National Museums of India.</p><p>Originally a private art collection of the Salar Jung family, it was endowed to the nation after the death of Salar Jung III. It was inaugurated on 16 December 1951. It has a collection of sculptures, paintings, carvings, textiles, manuscripts, ceramics, metallic artifacts, carpets, clocks, and furniture from Japan, China, Burma, Nepal, India, Persia, Egypt, Europe, and North America.</p>"
+    },
+    'mumbai': {
+        title: "CSMVS Mumbai",
+        tag: "Saracenic Heritage",
+        image: "/static/images/csmvs_mumbai.png",
+        era: "Opened 1922",
+        location: "Fort, Mumbai",
+        text: "<p>Chhatrapati Shivaji Maharaj Vastu Sangrahalaya (CSMVS), formerly named the Prince of Wales Museum of Western India, is the main museum in Mumbai, Maharashtra. It was founded in the early years of the 20th century by prominent citizens of Mumbai, with the help of the government, to commemorate the visit of George V, who was Prince of Wales at the time.</p><p>The museum document the history of India from prehistoric times to the modern era. The museum was designed by George Wittet in the Indo-Saracenic style of architecture, incorporating elements of other styles of architecture like the Mughal, Maratha and Jain.</p>"
+    },
+
+    // ARTIFACTS
+    'lion_capital': {
+        title: "The Lion Capital",
+        tag: "Ancient Art",
+        image: "/static/images/ashoka_pillar.png",
+        era: "250 BCE",
+        location: "Sarnath, Uttar Pradesh",
+        text: "<p>The Lion Capital of Ashoka is a sculpture of four Asiatic lions standing back to back, on an elaborate base that includes other animals. A graphic representation of it was adopted as the official Emblem of India in 1950.</p><p>The capital is carved out of a single block of polished sandstone, and was always a separate piece from the column itself. It features the Ashoka Chakra (Wheel of Dharma) which is also found on the National Flag of India.</p>",
+        isArtifact: true
+    },
+    'dancing_girl': {
+        title: "The Dancing Girl",
+        tag: "Indus Valley",
+        image: "/static/images/dancing_girl.png",
+        era: "2300–1750 BCE",
+        location: "Mohenjo-daro",
+        text: "<p>Dancing Girl is a prehistoric bronze sculpture made in lost-wax casting about 2300–1750 BCE in the Indus Valley Civilisation city of Mohenjo-daro, which was one of the earliest cities in the world.</p><p>The statue is 10.5 centimetres (4.1 in) tall, and depicts a young woman or girl with quite long legs and arms, standing in a confident, naturalistic pose. It is a masterpiece that reveals the advanced level of Harappan metallurgical skill.</p>",
+        isArtifact: true
+    },
+    'relics': {
+        title: "Civilization Relics",
+        tag: "Archaeology",
+        image: "/static/images/harappan_gallery.png",
+        era: "Bronze Age",
+        location: "Harappan Sites",
+        text: "<p>Indus Valley Civilization seals are some of the most famous artifacts from the era. These small, flat, square or rectangular objects were typically made of steatite (a soft stone) and featured intricate carvings of animals, plants, and a mysterious script that remains undeciphered.</p><p>The seals were used primarily for trade and administration, serving as a form of identification or signature for goods. Each seal was unique and reflected the identity and status of its owner.</p>",
+        isArtifact: true
+    },
+    'manuscripts': {
+        title: "Ancient Manuscripts",
+        tag: "Sacred Texts",
+        image: "/static/images/manuscript_gallery.png",
+        era: "Medieval Period",
+        location: "National Archives",
+        text: "<p>Indian manuscripts were traditionally written on organic materials like palm leaf (tala-patra) or birch bark (bhurja-patra). These materials were meticulously prepared to ensure longevity and were often bound together using wooden covers.</p><p>They cover a vast range of subjects, from religious and philosophical texts like the Vedas and Upanishads to scientific treatises on astronomy, medicine (Ayurveda), and mathematics, preserving the intellectual legacy of ancient India.</p>",
+        isArtifact: true
+    },
+    'armoury': {
+        title: "Imperial Armoury",
+        tag: "Military History",
+        image: "/static/images/arms_gallery.png",
+        era: "Mughal & Maratha",
+        location: "Regional Museums",
+        text: "<p>The Imperial Armoury collections showcase the exceptional craftsmanship of Indian weaponsmiths. From the legendary Damascus steel blades (Wootz) to ornate shields inlaid with precious metals, these weapons were symbols of power and prestige.</p><p>The collection includes the Talwar (curved sword), the Katar (punch dagger), and various types of matchlock muskets, reflecting the evolution of warfare and metalwork during the Mughal and Maratha eras.</p>",
+        isArtifact: true
+    },
+    'tanjore': {
+        title: "Tanjore Art",
+        tag: "Devotional Art",
+        image: "/static/images/tanjore_painting.png",
+        era: "16th - 18th Century",
+        location: "Thanjavur, Tamil Nadu",
+        text: "<p>Thanjavur painting is a classical South Indian painting style, which was inaugurated from the town of Thanjavur (anglicized as Tanjore). The art form draws its immediate resources and inspiration from way back about 1600 AD.</p><p>These paintings are characterized by rich, flat and vivid colors, simple iconic composition, glittering gold foils overlaid on delicate but extensive gesso work and inlays of glass beads and pieces or very rarely precious and semi-precious gems.</p>",
+        isArtifact: true
+    }
+};
+
+function discoverItem(id) {
+    const data = ARTICLE_DATA[id];
+    if (!data) return;
+
+    const content = `
+        <div class="article-hero">
+            <img src="${data.image}" alt="${data.title}">
+            <div class="article-hero-overlay">
+                <div>
+                    <span class="article-tag">${data.tag}</span>
+                    <h2>${data.title}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="article-body">
+            <div class="article-text">
+                ${data.text}
+                <div style="margin-top: 40px;">
+                    ${data.isArtifact ? '' : `<button class="cta-btn" onclick="closeDiscovery(); openBooking();">Book Tickets to Visit</button>`}
+                    <button class="cta-btn secondary" onclick="closeDiscovery()" style="${data.isArtifact ? '' : 'margin-left: 15px;'}">Close Reading</button>
+                </div>
+            </div>
+            <div class="article-sidebar">
+                <span class="sidebar-title">Artifact Details</span>
+                <div class="sidebar-info-row">
+                    <span>Era/Period</span>
+                    <span style="color:var(--primary-gold)">${data.era}</span>
+                </div>
+                <div class="sidebar-info-row">
+                    <span>Current Exhibit</span>
+                    <span style="color:var(--primary-gold)">${data.title.split(' ')[0]} Gallery</span>
+                </div>
+                <div class="sidebar-info-row" style="border:none;">
+                    <span>Location</span>
+                    <span style="color:var(--primary-gold)">${data.location}</span>
+                </div>
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border-gold); font-size: 0.8rem; color: var(--text-muted); font-style: italic;">
+                    Explore more through our AI Virtual Curator. Launch the chatbot for a guided discussion.
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('discoveryContent').innerHTML = content;
+    document.getElementById('discoveryOverlay').style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // Disable scroll
+}
+
+function closeDiscovery() {
+    document.getElementById('discoveryOverlay').style.display = 'none';
+    document.body.style.overflow = 'auto'; // Re-enable scroll
+}
+
+// Global reveal on scroll logic
 const revealObs = new IntersectionObserver(entries => {
     entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.1 });

@@ -16,6 +16,7 @@ def verify_gemini():
         {"msg": "संग्रहालय किस समय बंद होता है?", "description": "Pure Hindi (Closing time)"},
         {"msg": "எனக்கு ஒரு டிக்கெட் வேண்டும்", "description": "Tamil (I want a ticket)"},
         {"msg": "3", "description": "State transition test (Selection)"},
+        {"msg": "today", "description": "Today normalization test"},
         {"msg": "2", "description": "State transition test (Count)"}
     ]
     

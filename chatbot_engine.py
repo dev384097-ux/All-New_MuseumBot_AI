@@ -20,10 +20,10 @@ MAX_RETRIES = 1
 DEFAULT_RETRY_DELAY = 1.0  # seconds
 MAX_TOKENS = 1000
 MODEL_PRIORITY = [
-    'gemini-2.0-flash',       # Latest verified working model
-    'gemini-flash-latest',    # Stable fallback
-    'gemini-2.0-flash-lite',  # Lightweight fallback
-    'gemini-1.5-flash',       # Legacy fallback
+    'gemini-2.5-flash',       # Latest verified available model
+    'gemini-2.0-flash',       # Stable flash model
+    'gemini-flash-latest',    # Alias for latest flash
+    'gemini-2.0-flash-lite',  # Lightweight option
 ]
 
 class MuseumChatbot:
@@ -85,13 +85,13 @@ class MuseumChatbot:
                 'pa_latin': "Wadiya choice: {title}. Tusi kinniyan ticktan book karna chaunde ho?"
             },
             'ask_date': {
-                'en': "When do you plan to visit {title}? (e.g., Tomorrow, Sunday, or 20th Oct)",
-                'hi_native': "आप {title} कब जाना चाहते हैं? (जैसे: कल, रविवार, या 20 अक्टूबर)",
-                'hi_latin': "Aap {title} kab visit karna chahte hain? (e.g., Kal, Sunday, ya 20th Oct)",
-                'ta_native': "நீங்கள் எப்போது {title} செல்ல திட்டமிட்டுள்ளீர்கள்? (எ.கா., நாளை, ஞாயிறு, அல்லது அக் 20)",
-                'ta_latin': "Neenga eppo {title} visit panna plan panreenga? (e.g., Naalaiku, Sunday, illa 20th Oct)",
-                'pa_native': "ਤੁਸੀਂ {title} ਕਦੋਂ ਜਾਣ ਦੀ ਯੋਜਨਾ ਬਣਾ ਰਹੇ ਹੋ? (ਜਿਵੇਂ: ਕੱਲ੍ਹ, ਐਤਵਾਰ, ਜਾਂ 20 ਅਕਤੂਬਰ)",
-                'pa_latin': "Tusi {title} kadon visit karna chaunde ho? (e.g., Kal, Sunday, ya 20 Oct)"
+                'en': "When do you plan to visit {title}? Write date in (DD-MM-YYYY)",
+                'hi_native': "आप {title} कब जाना चाहते हैं? कृपया चैटबॉट में तारीख लिखें (DD-MM-YYYY)",
+                'hi_latin': "Aap {title} kab visit karna chahte hain? Kripya date (DD-MM-YYYY) format mein enter karein.",
+                'ta_native': "நீங்கள் எப்போது {title} செல்ல திட்டமிட்டுள்ளீர்கள்? தேதியை உள்ளிடவும் (DD-MM-YYYY)",
+                'ta_latin': "Neenga {title} eppo visit panna plan panreenga? Dayavu seithu date (DD-MM-YYYY) format la type pannunga.",
+                'pa_native': "ਤੁਸੀਂ {title} ਕਦੋਂ ਜਾਣ ਦੀ ਯੋਜਨਾ ਬਣਾ ਰਹੇ ਹੋ? ਕਿਰਪਾ ਕਰਕੇ ਮਿਤੀ (DD-MM-YYYY) ਫਾਰਮੈਟ ਵਿੱਚ ਦਰਜ ਕਰੋ।",
+                'pa_latin': "Tusi {title} kadon visit karna chaunde ho? Kirpa karke date (DD-MM-YYYY) format vich enter karo."
             },
             'payment_confirm': {
                 'en': "Confirming {count} tickets for '{title}'. Total is ₹{total}. Proceed?",
@@ -139,22 +139,22 @@ class MuseumChatbot:
                 'pa_latin': "Security sadi priority hai, 24/7 CCTV surveillance hai."
             },
             'ask_tier': {
-                'en': "Please select the ticket type for these {count} tickets:<br>1. Adult (₹{price} each)<br>2. Student / Child (₹1 each)",
-                'hi_native': "इन {count} टिकटों के लिए प्रकार चुनें:<br>1. व्यक्ति (₹{price} प्रत्येक)<br>2. छात्र / बच्चा (₹1 प्रत्येक)",
-                'hi_latin': "In {count} tickets ke liye type chunein:<br>1. Adult (₹{price} each)<br>2. Student / Child (₹1 each)",
-                'ta_native': "இந்த {count} டிக்கெட்டுகளுக்கான வகையைத் தேர்ந்தெடுக்கவும்:<br>1. பெரியவர் (₹{price})<br>2. மாணவர் / குழந்தை (₹1)",
-                'ta_latin': "Inidhu {count} tickets-kku type choose pannunga:<br>1. Adult (₹{price})<br>2. Student / Child (₹1)",
-                'pa_native': "ਇਹਨਾਂ {count} ਟਿਕਟਾਂ ਲਈ ਕਿਸਮ ਚੁਣੋ:<br>1. ਬਾਲਗ (₹{price} ਹਰੇਕ)<br>2. ਵਿਦਿਆਰਥੀ / ਬੱਚਾ (₹1 ਹਰੇਕ)",
-                'pa_latin': "Inna {count} ticktan layi type chuno:<br>1. Adult (₹{price})<br>2. Student / Child (₹1)"
+                'en': "Please select the ticket type for these {count} tickets:<br>1. Adult (₹{price} each)<br>2. Student / Child (₹1 each)<br>3. Group (5+) (₹80 each)",
+                'hi_native': "इन {count} टिकटों के लिए प्रकार चुनें:<br>1. व्यक्ति (₹{price} प्रत्येक)<br>2. छात्र / बच्चा (₹1 प्रत्येक)<br>3. समूह 5+ (₹80 प्रत्येक)",
+                'hi_latin': "In {count} tickets ke liye type chunein:<br>1. Adult (₹{price} each)<br>2. Student / Child (₹1 each)<br>3. Group 5+ (₹80 each)",
+                'ta_native': "இந்த {count} டிக்கெட்டுகளுக்கான வகையைத் தேர்ந்தெடுக்கவும்:<br>1. பெரியவர் (₹{price})<br>2. மாணவர் / குழந்தை (₹1)<br>3. குழு 5+ (₹80)",
+                'ta_latin': "Inidhu {count} tickets-kku type choose pannunga:<br>1. Adult (₹{price})<br>2. Student / Child (₹1)<br>3. Group 5+ (₹80)",
+                'pa_native': "ਇਹਨਾਂ {count} ਟਿਕਟਾਂ ਲਈ ਕਿਸਮ ਚੁਣੋ:<br>1. ਬਾਲਗ (₹{price} ਹਰੇਕ)<br>2. ਵਿਦਿਆਰਥੀ / ਬੱਚਾ (₹1 ਹਰੇਕ)<br>3. ਸਮੂਹ 5+ (₹80 ਹਰੇਕ)",
+                'pa_latin': "Inna {count} ticktan layi type chuno:<br>1. Adult (₹{price})<br>2. Student / Child (₹1)<br>3. Group 5+ (₹80)"
             },
             'unknown': {
-                'en': "I'm not sure about that. Try asking about 'exhibitions', 'hours', or 'tickets'!",
-                'hi_native': "क्षमा करें, मुझे समझ नहीं आया। क्या आप 'टिकट' या 'समय' के बारे में पूछ सकते हैं?",
-                'hi_latin': "Thoda clear karenge? Aap mujhse 'tickets' ya 'timings' ke bare mein puch sakte hain.",
-                'ta_native': "என்னிடம் டிக்கெட்டுகள் அல்லது நேரங்களைப் பற்றி கேளுங்கள்!",
-                'ta_latin': "Puriyala. Tickets illa hours pathi kelunga.",
-                'pa_native': "ਮੈਨੂੰ ਸਮਝ ਨਹੀਂ ਆਈ। ਟਿਕਟਾਂ ਜਾਂ ਸਮੇਂ ਬਾਰੇ ਪੁੱਛੋ!",
-                'pa_latin': "Samajh nai aayi. Tickets ya timings baare pucho."
+                'en': "Our digital curator is experiencing heavy traffic right now. Please try your request again later!",
+                'hi_native': "हमारा डिजिटल क्यूरेटर अभी भारी ट्रैफ़िक का सामना कर रहा है। कृपया थोड़ी देर बाद पुनः प्रयास करें!",
+                'hi_latin': "Abhi server pe heavy traffic hai. Kripya thodi der baad try karein!",
+                'ta_native': "தற்போது அதிக நெரிசலாக உள்ளது. தயவுசெய்து சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்!",
+                'ta_latin': "Ippo heavy traffic iruku. Konjam neram kalichu try pannunga!",
+                'pa_native': "ਸਾਡੇ ਡਿਜੀਟਲ ਕਿਊਰੇਟਰ 'ਤੇ ਅਜੇ ਬਹੁਤ ਟ੍ਰੈਫਿਕ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਬਾਅਦ ਵਿੱਚ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ!",
+                'pa_latin': "Server te heavy traffic hai. Kripa karke thodi der baad try karo!"
             }
         }
 
@@ -228,86 +228,27 @@ class MuseumChatbot:
 
 
     def _get_system_instructions(self, locked_lang, locked_script):
-        """Returns the precision Museum Assistant persona with strict intent-based formatting."""
-        return f"""You are a professional AI Museum Assistant. Your goal is to provide clear, structured, and easy-to-read answers.
+        """Returns the precision Museum Assistant persona with friendly tone constraints."""
+        return f"""You are a friendly AI Museum Assistant. Treat users like a friend, keeping your language simple, warm, and easy to understand.
 
-STRICT RULES (Apply to EVERY response):
-1. NO MARKDOWN: Do NOT use **bold**, ## headers, or *italics*. Use plain text ONLY.
-2. NO GREETINGS: Do NOT start with "Namaste", "Hello", or "Hi". Go directly to the answer.
-3. NO LONG PARAGRAPHS: Keep text concise and sentences short.
-4. SPACING: Always add a blank line between every section.
-5. BULLETS: Use dash-based bullet points (-) for all lists.
-6. TITLE: Start with the main topic name as a plain text title on the first line.
-
-RESPONSE STRUCTURES (Choose based on question type):
-
-IF DEFINITION / "WHAT IS":
-[Topic Name]
-
-[Short 2-3 line explanation]
-
-Key Features:
-- Point 1
-- Point 2
-- Point 3
-
-Summary:
-[1-2 line conclusion]
-
-IF "EXPLAIN IN DETAIL":
-[Topic Name]
-
-[Short introduction]
-
-Details:
-- Point 1 with short explanation
-- Point 2 with short explanation
-- Point 3 with short explanation
-
-Examples (if applicable):
-- Example 1
-- Example 2
-
-Summary:
-[Short conclusion]
-
-IF PLACE / MUSEUM:
-[Place Name]
-
-[Short description]
-
-Highlights:
-- Feature 1
-- Feature 2
-
-Visitor Info:
-- Timings
-- Tickets
-- Location
-
-Summary:
-[Short closing line]
-
-IF COMPARISON:
-[Topic Comparison]
-
-[Short intro]
-
-Differences:
-- Point 1
-- Point 2
-
-Summary:
-[Conclusion]
+CONVERSATION STYLE:
+1. Keep your answers short, ideally 2 to 5 lines for normal questions.
+2. Speak conversationally naturally, like a helpful friend at a museum.
+3. If the user explicitly asks for "detailed information" or to "explain in detail", then you may break the length rule and provide a comprehensive, detailed explanation.
 
 STRICT RULES:
-1. Handle museum-related queries (History, Culture, Art, Exhibits).
-2. If unrelated, politely redirect to museum services.
-3. [TECHNICAL] If booking tickets, include '[INIT_BOOKING]' at the VERY END.
+1. NO MARKDOWN: Do NOT use **bold**, ## headers, or *italics*. Use plain text ONLY.
+2. EXCLUSIVE SCOPE: Only answer questions (like attractions, shows, locations) concerning the following supported museums:
+   - National Science Centre, New Delhi
+   - Nehru Science Centre, Mumbai
+   - BITM Kolkata
+   - Science City, Ahmedabad
+   If the user asks an open-ended question (e.g., "What are the attractions?"), list facts ONLY about these specific locations.
+3. If unrelated, politely redirect to the supported museums.
+4. [TECHNICAL] If the user exhibits clear intent to book tickets, include '[INIT_BOOKING]' at the VERY END of your response.
 
 MULTILINGUAL SUPPORT & SESSION LOCK:
-* Respond in: {locked_lang} (Script: {locked_script})
-* Do NOT translate labels like "Key Features:", "Summary:", "Details:", "Visitor Info:", "Highlights:" if the user is using English. Translate them appropriately if the session is locked to a regional language."""
+* Respond in: {locked_lang} (Script: {locked_script})"""
 
     def _translate_to_en(self, text):
         # Basic cleanup
@@ -379,41 +320,60 @@ MULTILINGUAL SUPPORT & SESSION LOCK:
             if text_lower in ["namaste", "namaskar"]:
                 return "hi"
 
-        hindi_keywords = ["mujhe", "chahiye", "kitna", "kaise", "kya", "hai", "karna", "ticket", "namaste", "shubh"]
-        tamil_keywords = ["venum", "enakku", "epadi", "irukinga", "vanakkam", "nanri"]
-        punjabi_keywords = ["mainu", "chahida", "kithe", "ki", "sat sri akal", "tuhanu"]
-        bengali_keywords = ["nomoskar", "bhalo", "lagbe"]
-        telugu_keywords = ["naaku", "kavali", "namaste", "ela"]
-        kannada_keywords = ["nanage", "beku", "namaskara"]
-        malayalam_keywords = ["enikku", "venam", "namaskaram"]
-        gujarati_keywords = ["mane", "joie", "kem", "cho"]
-        marathi_keywords = ["mala", "pahije", "kashi"]
+        hindi_keywords = ["mujhe", "chahiye", "kitna", "kaise", "kya", "hai", "h", "karna", "ke", "namaste", "shubh"]
+        tamil_keywords = ["venum", "enakku", "epadi", "irukinga", "vanakkam", "nanri", "pannalaam", "seiya"]
+        punjabi_keywords = ["mainu", "menu", "karni", "chahida", "kithe", "ki", "sat sri akal", "tuhanu"]
+        bengali_keywords = ["nomoskar", "bhalo", "lagbe", "korbo", "chai", "amar", "dorkar"]
+        telugu_keywords = ["naaku", "kavali", "namaste", "ela", "cheyali", "nenu"]
+        kannada_keywords = ["nanage", "beku", "namaskara", "madabeku", "naanu", "hege"]
+        malayalam_keywords = ["enikku", "venam", "namaskaram", "cheyyanam", "njan", "engane"]
+        gujarati_keywords = ["mane", "joie", "kem", "cho", "mare", "karvi", "su"]
+        marathi_keywords = ["mala", "pahije", "kashi", "karayche", "ahe", "mi", "kasa"]
+        english_keywords = ["book", "ticket", "tickets", "the", "is", "where", "how", "what", "can", "i"]
         
         scores = {
-            "hi": sum(1 for w in hindi_keywords if w in text_lower),
-            "ta": sum(1 for w in tamil_keywords if w in text_lower),
-            "pa": sum(1 for w in punjabi_keywords if w in text_lower),
-            "bn": sum(1 for w in bengali_keywords if w in text_lower),
-            "te": sum(1 for w in telugu_keywords if w in text_lower),
-            "kn": sum(1 for w in kannada_keywords if w in text_lower),
-            "ml": sum(1 for w in malayalam_keywords if w in text_lower),
-            "gu": sum(1 for w in gujarati_keywords if w in text_lower),
-            "mr": sum(1 for w in marathi_keywords if w in text_lower)
+            # Weight common english loanwords lower to allow regional tie-breaking to succeed
+            "en": sum(0.5 for w in english_keywords if re.search(r'\b' + w + r'\b', text_lower)),
+            "hi": sum(1 for w in hindi_keywords if re.search(r'\b' + w + r'\b', text_lower)),
+            "ta": sum(1 for w in tamil_keywords if re.search(r'\b' + w + r'\b', text_lower)),
+            "pa": sum(1 for w in punjabi_keywords if re.search(r'\b' + w + r'\b', text_lower)),
+            "bn": sum(1 for w in bengali_keywords if re.search(r'\b' + w + r'\b', text_lower)),
+            "te": sum(1 for w in telugu_keywords if re.search(r'\b' + w + r'\b', text_lower)),
+            "kn": sum(1 for w in kannada_keywords if re.search(r'\b' + w + r'\b', text_lower)),
+            "ml": sum(1 for w in malayalam_keywords if re.search(r'\b' + w + r'\b', text_lower)),
+            "gu": sum(1 for w in gujarati_keywords if re.search(r'\b' + w + r'\b', text_lower)),
+            "mr": sum(1 for w in marathi_keywords if re.search(r'\b' + w + r'\b', text_lower))
         }
         
         # If no keywords found, default to hi as it's the most likely Hinglish variant
         # but only if total score is > 0, otherwise let langdetect handle baseline
-        if sum(scores.values()) == 0:
+        total_score = sum(scores.values())
+        if total_score == 0:
             return None
             
-        return max(scores, key=scores.get)
+        # Find the max score
+        max_score = max(scores.values())
+        
+        # Get all languages with the max score
+        top_langs = [lang for lang, score in scores.items() if score == max_score]
+        
+        # Prefer regional language if tied with English
+        if "en" in top_langs and len(top_langs) > 1:
+            top_langs.remove("en")
+            
+        # If HI is in top langs (and it's not the only one), prefer HI for Hinglish fallback
+        if "hi" in top_langs:
+            return "hi"
+            
+        return top_langs[0]
 
     def _enforce_script(self, response, script_type):
-        """Ensures the response doesn't contain the wrong block of characters."""
-        if script_type == "latin":
-            # Strip any native script characters that might have sneaked in
-            # This is a safety layer to preserve 100% script consistency
-            return re.sub(r'[^\x00-\x7F]+', '', response)
+        """
+        Safety pass-through for script enforcement. 
+        Aggressive stripping of non-Latin characters creates empty/corrupt AI responses 
+        when the model fails to follow transliteration instructions.
+        """
+        # Removed r'[^\x00-\x7F]+' aggressive regex stripping to preserve AI outputs safely
         return response
 
     def _get_localized_response(self, template_key, user_lang, user_script_data, **kwargs):
@@ -503,11 +463,22 @@ MULTILINGUAL SUPPORT & SESSION LOCK:
             return self._get_localized_response(template_key, lang_hint, (locked_script, locked_script)), state_data
 
         # 1. Session-Based Language & Script Locking (after greeting check)
-        if not locked_lang:
+        # Update dynamically if a clear language was detected, otherwise hold the session state
+        # This prevents switching back to English when users type "1" or "Tomorrow" during bookings
+        if locked_lang:
+            if dominant_lang:
+                locked_lang = dominant_lang
+        elif current_input_lang:
             locked_lang = current_input_lang
+            
+        # Hold script if input is just numbers to prevent UI glitches
+        if message.strip().isdigit() and state_data.get('locked_script'):
+            locked_script = state_data.get('locked_script')
+        else:
             locked_script = user_script
-            state_data['locked_lang'] = locked_lang
-            state_data['locked_script'] = locked_script
+        
+        state_data['locked_lang'] = locked_lang
+        state_data['locked_script'] = locked_script
         
         # Use locked values for all subsequent responses
         user_lang = locked_lang
@@ -544,11 +515,16 @@ MULTILINGUAL SUPPORT & SESSION LOCK:
                     return self._get_localized_response('ask_tier', user_lang, final_script_data, count=count, price=state_data['exhibition']['price']), state_data
 
         elif state == 'awaiting_ticket_tier':
-            # Logic to handle 1 (Adult) or 2 (Student)
+            # Logic to handle 1 (Adult), 2 (Student), 3 (Group)
             total = 0
             tier_name = "Adult"
             
-            if "2" in clean_msg or "student" in msg_lower or "child" in msg_lower or "bacha" in msg_lower:
+            if "3" in clean_msg or "group" in msg_lower or "jhund" in msg_lower or "samuh" in msg_lower:
+                if state_data['count'] < 5:
+                    state_data['count'] = 5 # Enforce minimum 5 for group booking
+                total = state_data['count'] * 80 # Group rate
+                tier_name = "Group Booking"
+            elif "2" in clean_msg or "student" in msg_lower or "child" in msg_lower or "bacha" in msg_lower:
                 total = state_data['count'] * 1
                 tier_name = "Student/Child"
             else:

@@ -46,11 +46,11 @@
     </header>
     
     <!-- EXPLORE HERITAGE SITES -->
-    <section id="explore">
+    <section class="heritage-section">
         <span class="section-tag reveal">Premier Destinations</span>
         <h2 class="reveal">Explore <em>Heritage Sites</em></h2>
         <div class="heritage-grid">
-            <div class="heritage-card reveal">
+            <div class="heritage-card reveal" onclick="discoverItem('delhi')">
                 <div class="heritage-card-badge">New Delhi</div>
                 <img src="/static/images/national_museum_delhi.png" alt="National Museum" class="heritage-card-img">
                 <div class="heritage-card-content">
@@ -58,7 +58,7 @@
                     <p>Home to over 200,000 works of art spanning 5,000 years of Indian cultural history.</p>
                 </div>
             </div>
-            <div class="heritage-card reveal">
+            <div class="heritage-card reveal" onclick="discoverItem('kolkata')">
                 <div class="heritage-card-badge">Kolkata</div>
                 <img src="/static/images/indian_museum_kolkata.png" alt="Indian Museum" class="heritage-card-img">
                 <div class="heritage-card-content">
@@ -66,7 +66,7 @@
                     <p>The largest and oldest multipurpose museum in the Asia-Pacific region, established in 1814.</p>
                 </div>
             </div>
-            <div class="heritage-card reveal">
+            <div class="heritage-card reveal" onclick="discoverItem('hyderabad')">
                 <div class="heritage-card-badge">Hyderabad</div>
                 <img src="/static/images/salar_jung_museum.png" alt="Salar Jung" class="heritage-card-img">
                 <div class="heritage-card-content">
@@ -74,7 +74,7 @@
                     <p>One of the largest individual collections in the world, featuring artifacts from across the globe.</p>
                 </div>
             </div>
-            <div class="heritage-card reveal">
+            <div class="heritage-card reveal" onclick="discoverItem('mumbai')">
                 <div class="heritage-card-badge">Mumbai</div>
                 <img src="/static/images/csmvs_mumbai.png" alt="CSMVS" class="heritage-card-img">
                 <div class="heritage-card-content">
@@ -101,7 +101,7 @@
         <span class="section-tag reveal">Visual Legacy</span>
         <h2 class="reveal">Treasurers of India: <em>The Artifact Collection</em></h2>
         <div class="artifact-grid">
-            <div class="artifact-card reveal">
+            <div class="artifact-card reveal" onclick="discoverItem('lion_capital')">
                 <div class="artifact-img-box">
                     <img src="/static/images/ashoka_pillar.png" alt="Ashoka Pillar">
                 </div>
@@ -110,7 +110,7 @@
                     <p>The iconic Sarnath Pillar, a symbol of peace, justice, and the modern Indian state.</p>
                 </div>
             </div>
-            <div class="artifact-card reveal">
+            <div class="artifact-card reveal" onclick="discoverItem('dancing_girl')">
                 <div class="artifact-img-box">
                     <img src="/static/images/dancing_girl.png" alt="Dancing Girl">
                 </div>
@@ -119,7 +119,7 @@
                     <p>A 4,500-year-old bronze masterpiece from the Harappan civilization, showcasing ancient metallurgical skill.</p>
                 </div>
             </div>
-            <div class="artifact-card reveal">
+            <div class="artifact-card reveal" onclick="discoverItem('relics')">
                 <div class="artifact-img-box">
                     <img src="/static/images/harappan_gallery.png" alt="Harappan Relics">
                 </div>
@@ -128,7 +128,7 @@
                     <p>Intricate seals and jewelry that speak of the sophisticated urban life of the Indus Valley.</p>
                 </div>
             </div>
-            <div class="artifact-card reveal">
+            <div class="artifact-card reveal" onclick="discoverItem('manuscripts')">
                 <div class="artifact-img-box">
                     <img src="/static/images/manuscript_gallery.png" alt="Ancient Manuscripts">
                 </div>
@@ -137,7 +137,7 @@
                     <p>Sacred texts preserved on palm leaves, carrying centuries of Vedic and scientific wisdom.</p>
                 </div>
             </div>
-            <div class="artifact-card reveal">
+            <div class="artifact-card reveal" onclick="discoverItem('armoury')">
                 <div class="artifact-img-box">
                     <img src="/static/images/arms_gallery.png" alt="Imperial Arms">
                 </div>
@@ -146,7 +146,7 @@
                     <p>Ornate swords and shields belonging to the Great Dynasties, forged in the fires of history.</p>
                 </div>
             </div>
-            <div class="artifact-card reveal">
+            <div class="artifact-card reveal" onclick="discoverItem('tanjore')">
                 <div class="artifact-img-box">
                     <img src="/static/images/tanjore_painting.png" alt="Tanjore Art">
                 </div>
@@ -347,10 +347,10 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Lead Visitor Name</label>
+                                <label class="form-label">Lead Visitor / Group Name</label>
                                 <div class="form-input-wrapper">
                                     <i class="fa-solid fa-user-check form-input-icon"></i>
-                                    <input type="text" class="form-input" id="visitorName" placeholder="Full name" value="{{ username if logged_in else '' }}" oninput="updateSummary()">
+                                    <input type="text" class="form-input" id="visitorName" placeholder="Name or Organization" value="{{ username if logged_in else '' }}" oninput="updateSummary()">
                                 </div>
                             </div>
                         </div>
@@ -374,13 +374,25 @@
                                 <span class="ticket-price-val">₹1</span>
                                 <span class="ticket-tier-name">Student / Child</span>
                             </div>
+                            <div class="ticket-card-mini" onclick="selectTicket(this, 80, 'Group')">
+                                <div class="ticket-badge">5+ Group</div>
+                                <span class="ticket-price-val">₹80</span>
+                                <span class="ticket-tier-name">Group Booking</span>
+                            </div>
                         </div>
                         <div class="form-group" style="margin-top: 30px;">
                             <label class="form-label">Member Count</label>
                             <div class="qty-selector-new">
                                 <button onclick="changeQty(-1)"><i class="fa-solid fa-minus"></i></button>
-                                <span id="qtyVal">02</span>
+                                <input type="number" id="qtyVal" value="1" min="1" onchange="manualQty()" style="background: transparent; border: none; color: white; font-size: 1.4rem; font-weight: 700; width: 60px; text-align: center; outline: none; -moz-appearance: textfield;">
                                 <button onclick="changeQty(1)"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 20px;">
+                            <label class="form-label">Additional Names <span style="color:#d4af37;">(Required for Group/Student, Use Commas)</span></label>
+                            <div class="form-input-wrapper">
+                                <i class="fa-solid fa-users form-input-icon"></i>
+                                <textarea class="form-input" id="additionalGuests" placeholder="E.g. Alice, Bob, Charlie" style="resize: vertical; min-height: 50px; font-family: inherit;" oninput="autoUpdateQty()"></textarea>
                             </div>
                         </div>
                         <div class="modal-footer-new">
@@ -441,13 +453,25 @@
                             <p>Your digital admission is now active.</p>
                         </div>
                         <div class="e-ticket-modern">
-                            <div class="ticket-side">
-                                <div class="ticket-label">Member</div>
-                                <div class="ticket-value" id="ticketVisitorText">Visitor</div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                                <div class="ticket-side">
+                                    <div class="ticket-label">Member</div>
+                                    <div class="ticket-value" id="ticketVisitorText">Visitor</div>
+                                </div>
+                                <div class="ticket-side" style="text-align: right;">
+                                    <div class="ticket-label">Reference</div>
+                                    <div class="ticket-value gold-text" id="ticketNum">########</div>
+                                </div>
                             </div>
-                            <div class="ticket-side">
-                                <div class="ticket-label">Reference</div>
-                                <div class="ticket-value gold-text" id="ticketNum">########</div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <div class="ticket-side">
+                                    <div class="ticket-label">Date of Visit</div>
+                                    <div class="ticket-value" id="ticketDateText">--</div>
+                                </div>
+                                <div class="ticket-side" style="text-align: right;">
+                                    <div class="ticket-label">Payment Mode</div>
+                                    <div class="ticket-value" id="ticketPayModeText">UPI</div>
+                                </div>
                             </div>
                             <div class="ticket-divider"></div>
                             <div class="ticket-bottom">
@@ -568,6 +592,16 @@
         </div>
     </footer>
 
+
+    <!-- DISCOVERY OVERLAY (Articles) -->
+    <div class="discovery-overlay" id="discoveryOverlay" onclick="handleOverlayClick(event)">
+        <div class="discovery-window">
+            <button class="discovery-close" onclick="closeDiscovery()">&times;</button>
+            <div id="discoveryContent">
+                <!-- Data-driven content will be injected here -->
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

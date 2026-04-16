@@ -318,6 +318,10 @@ def chat():
     user_message = request.json.get('message', '')
     bot_state = session.get('chatbot_state', {'state': 'idle'})
     
+    # Ensure backend passes the real logged-in name to the bot for ticketing
+    if 'username' in session:
+        bot_state['visitor_name'] = session['username']
+    
     response_text, updated_state = chatbot.process_message(user_message, bot_state)
     
     session['chatbot_state'] = updated_state

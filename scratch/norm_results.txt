@@ -1,0 +1,4 @@
+Original: नमस्ते!
+Cleaned: 'नमसत'
+Cleaned Length: 4
+Is Word: True

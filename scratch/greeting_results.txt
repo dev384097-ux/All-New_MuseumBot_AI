@@ -1,0 +1,28 @@
+INPUT: Sat sri akal
+RESPONSE: Sat Sri Akal! Tuhadi kiven madad karaan?
+LOCKED LANG: pa
+--------------------
+INPUT: ਸਤ ਸ੍ਰੀ ਅਕਾਲ
+RESPONSE: ਸਤ ਸ੍ਰੀ ਅਕਾਲ! ਮੈਂ ਤੁਹਾਡੀ ਕਿਵੇਂ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ?
+LOCKED LANG: pa
+--------------------
+INPUT: Vanakkam!
+RESPONSE: Vanakkam! Naan eppadi help pannalaam?
+LOCKED LANG: ta
+--------------------
+INPUT: வணக்கம்
+RESPONSE: வணக்கம்! நான் எப்படி உதவலாம்?
+LOCKED LANG: ta
+--------------------
+INPUT: Namaste
+RESPONSE: Namaste! Kaise help kar sakta hoon?
+LOCKED LANG: hi
+--------------------
+INPUT: नमस्ते
+RESPONSE: नमस्ते! मैं आपकी कैसे मदद कर सकता हूँ?
+LOCKED LANG: hi
+--------------------
+INPUT: नमस्कार
+RESPONSE: नमस्कार! मी तुम्हाला कशी मदत करू शकतो?
+LOCKED LANG: mr
+--------------------
