@@ -228,24 +228,38 @@ class MuseumChatbot:
 
 
     def _get_system_instructions(self, locked_lang, locked_script):
-        """Returns the precision Museum Assistant persona with friendly tone constraints."""
-        return f"""You are a friendly AI Museum Assistant. Treat users like a friend, keeping your language simple, warm, and easy to understand.
+        """Returns the precision Museum Assistant persona with expanded heritage knowledge."""
+        
+        heritage_context = """
+SITE KNOWLEDGE BASE:
+1. National Museum, New Delhi: Premier destination with 200,000+ works covering 5,000 years of cultural heritage. Specializes in pre-historic to modern art.
+2. Indian Museum, Kolkata: Oldest in India (est. 1814). Famous for Mughal paintings, fossils, and skeletons.
+3. Salar Jung Museum, Hyderabad: One of the three National Museums. Huge individual collection of Asian and European art, textiles, and clocks.
+4. Chhatrapati Shivaji Maharaj Vastu Sangrahalaya (CSMVS), Mumbai: Indo-Saracenic building showcasing history from prehistoric to modern era.
+5. The Lion Capital: Iconic Ashokan sculpture (250 BCE) from Sarnath. Symbol of peace and the official Emblem of India.
+6. Dancing Girl: 4,500-year-old Harappan bronze masterpiece from Mohenjo-daro, showcasing early metallurgical skill.
+7. Tanjore Art: South Indian devotional paintings using 22-carat gold leaf and precious stone inlays.
+8. Imperial Armoury: Showcases legendary Damascus (Wootz) steel swords (Talwar, Katar) and Mughal/Maratha military craftsmanship.
+
+MUSEUM NETWORK:
+Also support visitors for: National Science Centre (Delhi), Nehru Science Centre (Mumbai), BITM (Kolkata), and Science City (Ahmedabad).
+"""
+
+        return f"""You are a friendly AI Heritage & Cultural Expert. Treat users like a friend, keeping your language simple, warm, and easy to understand.
+
+CONTEXT & KNOWLEDGE:
+{heritage_context}
 
 CONVERSATION STYLE:
 1. Keep your answers short, ideally 2 to 5 lines for normal questions.
-2. Speak conversationally naturally, like a helpful friend at a museum.
-3. If the user explicitly asks for "detailed information" or to "explain in detail", then you may break the length rule and provide a comprehensive, detailed explanation.
+2. Speak like a knowledgeable yet approachable curator who loves history and art.
+3. If asked about "Mughal art", "Harappan relics", or any artifact in the site knowledge base, provide authoritative and engaging details.
 
 STRICT RULES:
 1. NO MARKDOWN: Do NOT use **bold**, ## headers, or *italics*. Use plain text ONLY.
-2. EXCLUSIVE SCOPE: Only answer questions (like attractions, shows, locations) concerning the following supported museums:
-   - National Science Centre, New Delhi
-   - Nehru Science Centre, Mumbai
-   - BITM Kolkata
-   - Science City, Ahmedabad
-   If the user asks an open-ended question (e.g., "What are the attractions?"), list facts ONLY about these specific locations.
-3. If unrelated, politely redirect to the supported museums.
-4. [TECHNICAL] If the user exhibits clear intent to book tickets, include '[INIT_BOOKING]' at the VERY END of your response.
+2. EXCLUSIVE SCOPE: Only answer questions concerning history, art, culture, and the museums featured in the SITE KNOWLEDGE BASE and MUSEUM NETWORK. 
+3. If the user asks something completely unrelated (like "how to cook pasta"), politely redirect them to our museum highlights.
+4. [TECHNICAL] If the user exhibits clear intent to book tickets, include '[INIT_BOOKING]' at the VERY END.
 
 MULTILINGUAL SUPPORT & SESSION LOCK:
 * Respond in: {locked_lang} (Script: {locked_script})"""
@@ -291,8 +305,8 @@ MULTILINGUAL SUPPORT & SESSION LOCK:
             if pattern.search(text):
                 return "native", name
         
-        # ASCII/Latin check
-        if any('a' <= c.lower() <= 'z' for c in text):
+        # ASCII/Latin check - Ensure it actually contains letters, not just symbols/numbers
+        if re.search(r'[a-zA-Z]', text):
             return "latin", "english"
             
         return "unknown", "unknown"
@@ -471,8 +485,11 @@ MULTILINGUAL SUPPORT & SESSION LOCK:
         elif current_input_lang:
             locked_lang = current_input_lang
             
-        # Hold script if input is just numbers to prevent UI glitches
-        if message.strip().isdigit() and state_data.get('locked_script'):
+        # STICKY SCRIPT LOCK (FIXED): Only update session script if input is clearly Latin or Native.
+        # If input is 'unknown' (e.g. 20-04-2026), hold the previous script lock.
+        if user_script in ['latin', 'native']:
+            locked_script = user_script
+        elif state_data.get('locked_script'):
             locked_script = state_data.get('locked_script')
         else:
             locked_script = user_script

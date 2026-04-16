@@ -19,7 +19,16 @@
             <li><a href="/">Home</a></li>
             <li><a href="#artifacts">Treasure of India</a></li>
             <li><a href="#how">Important Things</a></li>
-
+            <li class="nav-dropdown">
+                <a href="javascript:void(0)">Museums <i class="fa-solid fa-chevron-down"></i></a>
+                <ul class="dropdown-menu">
+                    <li><a href="javascript:void(0)" onclick="discoverItem('delhi')">National Museum Delhi</a></li>
+                    <li><a href="javascript:void(0)" onclick="discoverItem('kolkata')">Indian Museum Kolkata</a></li>
+                    <li><a href="javascript:void(0)" onclick="discoverItem('mumbai')">CSMVS Mumbai</a></li>
+                    <li><a href="javascript:void(0)" onclick="discoverItem('hyderabad')">Salar Jung Hyderabad</a></li>
+                </ul>
+            </li>
+ 
             {% if logged_in %}
             <li class="nav-user-info">
                 <span class="user-name"><i class="fa-solid fa-circle-user"></i> {{ username }}</span>
@@ -108,7 +117,7 @@
                 </div>
                 <div class="artifact-info">
                     <h3>The Lion Capital</h3>
-                    <p>The iconic Sarnath Pillar, a symbol of peace, justice, and the modern Indian state.</p>
+                    <span class="museum-label">Sarnath Museum, Varanasi</span>
                 </div>
             </div>
             <div class="artifact-card reveal" onclick="discoverItem('dancing_girl')">
@@ -117,7 +126,7 @@
                 </div>
                 <div class="artifact-info">
                     <h3>Dancing Girl</h3>
-                    <p>A 4,500-year-old bronze masterpiece from the Harappan civilization, showcasing ancient metallurgical skill.</p>
+                    <span class="museum-label">National Museum, New Delhi</span>
                 </div>
             </div>
             <div class="artifact-card reveal" onclick="discoverItem('relics')">
@@ -126,7 +135,7 @@
                 </div>
                 <div class="artifact-info">
                     <h3>Civilization Relics</h3>
-                    <p>Intricate seals and jewelry that speak of the sophisticated urban life of the Indus Valley.</p>
+                    <span class="museum-label">National Museum, New Delhi</span>
                 </div>
             </div>
             <div class="artifact-card reveal" onclick="discoverItem('manuscripts')">
@@ -135,7 +144,7 @@
                 </div>
                 <div class="artifact-info">
                     <h3>Ancient Manuscripts</h3>
-                    <p>Sacred texts preserved on palm leaves, carrying centuries of Vedic and scientific wisdom.</p>
+                    <span class="museum-label">Indian Museum, Kolkata</span>
                 </div>
             </div>
             <div class="artifact-card reveal" onclick="discoverItem('armoury')">
@@ -144,7 +153,7 @@
                 </div>
                 <div class="artifact-info">
                     <h3>Imperial Armoury</h3>
-                    <p>Ornate swords and shields belonging to the Great Dynasties, forged in the fires of history.</p>
+                    <span class="museum-label">Salar Jung Museum, Hyderabad</span>
                 </div>
             </div>
             <div class="artifact-card reveal" onclick="discoverItem('tanjore')">
@@ -153,8 +162,46 @@
                 </div>
                 <div class="artifact-info">
                     <h3>Tanjore Art</h3>
-                    <p>South Indian devotional paintings adorned with 22-carat gold leaf and precious stones.</p>
+                    <span class="museum-label">CSMVS Mumbai Collection</span>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ESSENTIAL VISITOR GUIDE -->
+    <section id="how" class="visitor-guide">
+        <span class="section-tag reveal">Important Things</span>
+        <h2 class="reveal">Essential <em>Guidelines &amp; Schedule</em></h2>
+        <div class="guide-grid">
+            <div class="guide-item reveal">
+                <i class="fa-solid fa-clock"></i>
+                <h3>Operational Hours</h3>
+                <ul>
+                    <li>Open Daily: 09:30 AM - 06:00 PM</li>
+                    <li>Ticket counter closes at 05:30 PM</li>
+                    <li>Planetarium Shows: Hourly from 11:00 AM</li>
+                    <li>Closed only on Holi & Diwali</li>
+                </ul>
+            </div>
+            <div class="guide-item reveal">
+                <i class="fa-solid fa-clipboard-list"></i>
+                <h3>Visitor Policy</h3>
+                <ul>
+                    <li>No food/beverages inside galleries</li>
+                    <li>Arrive 15 mins before scheduled shows</li>
+                    <li>Cloakroom available for large bags</li>
+                    <li>Supervised exploration for children</li>
+                </ul>
+            </div>
+            <div class="guide-item reveal">
+                <i class="fa-solid fa-school"></i>
+                <h3>Group Bookings</h3>
+                <ul>
+                    <li>Concessional rates for school groups</li>
+                    <li>Official institutional letter required</li>
+                    <li>Free entry for 1 escort per 10 students</li>
+                    <li>Book 48 hours in advance via Chatbot</li>
+                </ul>
             </div>
         </div>
     </section>
@@ -163,27 +210,7 @@
 
 
 
-    <!-- STATS (Header removed, content follows Platform Impact section or serves as standalone) -->
-    <div style="background: var(--bg-surface); padding: 40px 8% 80px; border-bottom: 1px solid var(--border-gold); text-align: left;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px;">
-            <div class="reveal">
-                <div style="font-family: 'Playfair Display'; font-size: 3rem; color: var(--primary-gold); margin-bottom: 10px;">0</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;">Queue wait time</div>
-            </div>
-            <div class="reveal">
-                <div style="font-family: 'Playfair Display'; font-size: 3rem; color: var(--primary-gold); margin-bottom: 10px;">10+</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;">Languages supported</div>
-            </div>
-            <div class="reveal">
-                <div style="font-family: 'Playfair Display'; font-size: 3rem; color: var(--primary-gold); margin-bottom: 10px;">24/7</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;">Booking availability</div>
-            </div>
-            <div class="reveal">
-                <div style="font-family: 'Playfair Display'; font-size: 3rem; color: var(--primary-gold); margin-bottom: 10px;">100%</div>
-                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;">Automated ticketing</div>
-            </div>
-        </div>
-    </div>
+
 
     <!-- FEATURES -->
     <section id="features">
@@ -237,6 +264,30 @@
                 <div style="width: 50px; height: 50px; border: 1px solid var(--primary-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display'; font-size: 1.5rem; color: var(--primary-gold); margin-bottom: 20px;">4</div>
                 <h4 style="margin-bottom: 10px; color: var(--text-primary);">Enter Gallery</h4>
                 <p style="font-size: 0.9rem; color: var(--text-muted);">Receive your digital QR code instantly for zero-queue entry.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PLATFORM EFFICIENCY STATS -->
+    <section id="impact" style="background: var(--bg-surface); border-top: 1px solid var(--border-gold);">
+        <span class="section-tag reveal">Platform Efficiency</span>
+        <h2 class="reveal" style="margin-bottom: 60px;">Performance <em>Metrics</em></h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 30px;">
+            <div class="stat-card reveal">
+                <div class="stat-num">0</div>
+                <div class="stat-label">Queue wait time</div>
+            </div>
+            <div class="stat-card reveal">
+                <div class="stat-num">10+</div>
+                <div class="stat-label">Languages supported</div>
+            </div>
+            <div class="stat-card reveal">
+                <div class="stat-num">24/7</div>
+                <div class="stat-label">Booking availability</div>
+            </div>
+            <div class="stat-card reveal">
+                <div class="stat-num">100%</div>
+                <div class="stat-label">Automated ticketing</div>
             </div>
         </div>
     </section>
@@ -523,43 +574,7 @@
     </div>
 
 
-    <!-- ESSENTIAL VISITOR GUIDE -->
-    <section id="how" class="visitor-guide">
-        <span class="section-tag reveal">Important Things</span>
-        <h2 class="reveal">Essential <em>Guidelines &amp; Schedule</em></h2>
-        <div class="guide-grid">
-            <div class="guide-item reveal">
-                <i class="fa-solid fa-clock"></i>
-                <h3>Operational Hours</h3>
-                <ul>
-                    <li>Open Daily: 09:30 AM - 06:00 PM</li>
-                    <li>Ticket counter closes at 05:30 PM</li>
-                    <li>Planetarium Shows: Hourly from 11:00 AM</li>
-                    <li>Closed only on Holi & Diwali</li>
-                </ul>
-            </div>
-            <div class="guide-item reveal">
-                <i class="fa-solid fa-clipboard-list"></i>
-                <h3>Visitor Policy</h3>
-                <ul>
-                    <li>No food/beverages inside galleries</li>
-                    <li>Arrive 15 mins before scheduled shows</li>
-                    <li>Cloakroom available for large bags</li>
-                    <li>Supervised exploration for children</li>
-                </ul>
-            </div>
-            <div class="guide-item reveal">
-                <i class="fa-solid fa-school"></i>
-                <h3>Group Bookings</h3>
-                <ul>
-                    <li>Concessional rates for school groups</li>
-                    <li>Official institutional letter required</li>
-                    <li>Free entry for 1 escort per 10 students</li>
-                    <li>Book 48 hours in advance via Chatbot</li>
-                </ul>
-            </div>
-        </div>
-    </section>
+
 
     <!-- FOOTER -->
     <footer>
@@ -601,6 +616,8 @@
             </div>
         </div>
     </div>
+
+
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

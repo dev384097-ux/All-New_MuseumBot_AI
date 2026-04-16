@@ -666,7 +666,7 @@ const ARTICLE_DATA = {
         tag: "Ancient Art",
         image: "/static/images/ashoka_pillar.png",
         era: "250 BCE",
-        location: "Sarnath, Uttar Pradesh",
+        location: "Sarnath Museum, Varanasi",
         text: "<p>The Lion Capital of Ashoka is a sculpture of four Asiatic lions standing back to back, on an elaborate base that includes other animals. A graphic representation of it was adopted as the official Emblem of India in 1950.</p><p>The capital is carved out of a single block of polished sandstone, and was always a separate piece from the column itself. It features the Ashoka Chakra (Wheel of Dharma) which is also found on the National Flag of India.</p>",
         isArtifact: true
     },
