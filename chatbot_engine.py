@@ -369,15 +369,15 @@ STRICT RULES:
                 return "hi"
 
         # Expanded keyword lists (Native + Latin scripts)
-        hindi_keywords = ["mujhe", "chahiye", "kitna", "kaise", "kya", "hai", "h", "karna", "ke", "namaste", "shubh", "क्या", "कैसे", "है", "ह", "चाहिए", "मुझे", "यहा", "वहा"]
-        tamil_keywords = ["venum", "enakku", "epadi", "irukinga", "vanakkam", "nanri", "pannalaam", "seiya", "என்ன", "எப்படி", "வேணும்", "எனக்கு", "இருக்கீங்க", "என்று", "இருக்கு"]
-        punjabi_keywords = ["mainu", "menu", "karni", "chahida", "kithe", "ki", "sat sri akal", "tuhanu", "daso", "bare", "kehda", "hunde", "ਕੀ", "ਕਿਵੇਂ", "ਹੈ", "ਮੈਨੂੰ", "ਕਿਥੇ", "ਕਿਹੜਾ", "ਦੱਸੋ", "ਬਾਰੇ"]
-        bengali_keywords = ["nomoskar", "bhalo", "lagbe", "korbo", "chai", "amar", "dorkar", "beshi", "keno", "kon", "নমস্কার", "ভালো", "চাই", "আমার", "কেন", "বেশি"]
-        telugu_keywords = ["naaku", "kavali", "namaste", "ela", "cheyali", "nenu", "ekkuva", "mariyu", "enduku", "నాకు", "కావాలి", "ఎలా", "చేయాలి", "ఎందుకు"]
-        kannada_keywords = ["nanage", "beku", "namaskara", "madabeku", "naanu", "hege", "ನನಗೆ", "ಬೇಕು", "ಹೇಗೆ", "ಮಾಡಬೇಕು"]
-        malayalam_keywords = ["enikku", "venam", "namaskaram", "cheyyanam", "njan", "engane", "എനിക്ക്", "വേണം", "എങ്ങനെ", "ചെയ്യണം"]
-        gujarati_keywords = ["mane", "joie", "kem", "cho", "mare", "karvi", "su", "vadhu", "kayo", "ane", "che", "મને", "જોઈએ", "કેમ", "કરો", "શું", "વધારે"]
-        marathi_keywords = ["mala", "pahije", "kashi", "karayche", "ahe", "mi", "kasa", "jasta", "konta", "ani", "ka", "मला", "पाहिजे", "कशी", "करायचे", "आहे", "जास्त", "कोणता"]
+        hindi_keywords = ["mujhe", "chahiye", "kitna", "kaise", "kya", "hai", "h", "karna", "ke", "namaste", "shubh", "kab", "kahan", "kaun", "kyun", "achha", "arre", "haan", "nahi", "बताओ", "दिखाओ", "क्या", "कैसे", "है", "ह", "चाहिए", "मुझे", "यहा", "वहा", "कब", "कहाँ", "कौन", "क्यों", "अच्छा", "हाँ", "नहीं"]
+        tamil_keywords = ["venum", "enakku", "epadi", "irukinga", "vanakkam", "nanri", "pannalaam", "seiya", "enna", "eppothu", "engae", "yaar", "yen", "eppadi", "aama", "illai", "என்ன", "எப்படி", "வேணும்", "எனக்கு", "இருக்கீங்க", "என்று", "இருக்கு", "எப்போது", "எங்கே", "யார்", "ஏன்"]
+        punjabi_keywords = ["mainu", "menu", "karni", "chahida", "kithe", "ki", "sat sri akal", "tuhanu", "daso", "bare", "kehda", "hunde", "kadon", "kiun", "kiven", "haan", "na", "ਕੀ", "ਕਿਵੇਂ", "ਹੈ", "ਮੈਨੂੰ", "ਕਿਥੇ", "ਕਿਹੜਾ", "ਦੱਸੋ", "ਬਾਰੇ", "ਕਦੋਂ", "ਕਿਉਂ", "ਹਾਂ", "ਨਾ"]
+        bengali_keywords = ["nomoskar", "bhalo", "lagbe", "korbo", "chai", "amar", "dorkar", "beshi", "keno", "kon", "eta", "ta", "explain", "koro", "kokhon", "kothay", "ke", "kemon", "hayaan", "নমস্কার", "ভালো", "চাই", "আমার", "কেন", "বেশি", "কখন", "কোথায়", "কে", "কেমন", "হ্যাঁ"]
+        telugu_keywords = ["naaku", "kavali", "namaste", "ela", "cheyali", "nenu", "ekkuva", "mariyu", "enduku", "emi", "eppudu", "ekkada", "evaru", "నాకు", "కావాలి", "ఎలా", "చేయాలి", "ఎందుకు", "ఏమి", "ఎప్పుడు", "ఎక్కడ", "ఎవరు"]
+        kannada_keywords = ["nanage", "beku", "namaskara", "madabeku", "naanu", "hege", "enu", "yavaga", "elli", "yaru", "eke", "houdu", "alla", "ನನಗೆ", "ಬೇಕು", "ಹೇಗೆ", "ಮಾಡಬೇಕು", "ಏನು", "ಯಾವಾಗ", "ಎಲ್ಲಿ", "ಯಾರು", "ಏಕೆ", "ಹೌದು", "ಅಲ್ಲ"]
+        malayalam_keywords = ["enikku", "venam", "namaskaram", "cheyyanam", "njan", "engane", "enthu", "eppol", "evide", "aaru", "enthukondu", "athe", "alla", "എനിക്ക്", "വേണം", "എങ്ങനെ", "ചെയ്യണം", "എന്ത്", "എപ്പോൾ", "എവിടെ", "ആര്", "എന്തുകൊണ്ട്", "അതെ", "അല്ല"]
+        gujarati_keywords = ["mane", "joie", "kem", "cho", "mare", "karvi", "su", "vadhu", "kayo", "ane", "che", "aa", "vishe", "samjavo", "karo", "kyare", "shu", "kon", "ha", "મને", "જોઈએ", "કેમ", "કરો", "શું", "વધારે", "ક્યારે", "ક્યાં", "કોણ", "હા"]
+        marathi_keywords = ["mala", "pahije", "kashi", "karayche", "ahe", "mi", "kasa", "jasta", "konta", "ani", "ka", "ha", "samjun", "sanga", "sang", "kara", "kadhi", "kuthe", "kon", "kase", "ho", "nahi", "मला", "पाहिजे", "कशी", "करायचे", "आहे", "जास्त", "कोणता"]
         english_keywords = ["book", "ticket", "tickets", "the", "is", "where", "how", "what", "can", "i"]
         
         scores = {
@@ -511,6 +511,9 @@ STRICT RULES:
             locked_lang = dominant_lang
         elif user_script == 'native' and current_input_lang and current_input_lang != 'en':
             # Confidently switch if the user types in a native script for a different language
+            locked_lang = current_input_lang
+        elif current_input_lang and current_input_lang != 'en' and current_input_lang != locked_lang:
+            # Update lock if langdetect finds a different regional language (breaks stickiness)
             locked_lang = current_input_lang
         elif not locked_lang and current_input_lang:
             locked_lang = current_input_lang
