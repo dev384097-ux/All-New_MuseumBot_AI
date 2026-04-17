@@ -383,8 +383,22 @@ async function processManualPayment() {
 
 function startPaymentPolling(orderId, museum, visitor, total, linkId = null) {
     if (payPollInterval) clearInterval(payPollInterval);
+    const maxPolls = 40; // Max 160 seconds of polling
+    let pollCount = 0;
     
     payPollInterval = setInterval(async () => {
+        pollCount++;
+        if (pollCount > maxPolls) {
+            clearInterval(payPollInterval);
+            const subLabel = document.getElementById('payStatusSub');
+            if (subLabel) {
+                subLabel.style.display = 'block';
+                subLabel.style.color = '#c5a059'; // Warning yellow
+                subLabel.innerHTML = '<i class="fa-solid fa-clock"></i> Polling disconnected. Please verify payment in your UPI app or try refreshed booking.';
+            }
+            return;
+        }
+
         try {
             const resp = await fetch('/api/check_payment_status', {
                 method: 'POST',
@@ -400,6 +414,7 @@ function startPaymentPolling(orderId, museum, visitor, total, linkId = null) {
                 })
             });
             const data = await resp.json();
+            console.log(`DEBUG Check [${pollCount}]: Status=${data.status}, Paid=${data.paid}`);
             
             if (data.success && data.paid) {
                 clearInterval(payPollInterval);
@@ -430,11 +445,31 @@ function startPaymentPolling(orderId, museum, visitor, total, linkId = null) {
                 document.getElementById('ticketPayModeText').textContent = "UPI Transfer";
                 
                 goStep(4);
+            } else if (data.success && (data.status === 'cancelled' || data.status === 'expired' || data.status === 'failed')) {
+                console.warn("DEBUG: Terminal failure received:", data.status);
+                clearInterval(payPollInterval);
+                const subLabel = document.getElementById('payStatusSub');
+                const mainLabel = document.getElementById('payStatusLabel');
+                
+                if (subLabel) {
+                    subLabel.style.display = 'block';
+                    subLabel.style.color = '#ff4d4d'; // Red alert
+                    subLabel.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ${data.message || 'Payment failed. Please try again.'}`;
+                }
+                if (mainLabel) {
+                    mainLabel.textContent = "Payment Failed";
+                    mainLabel.style.color = '#ff4d4d';
+                }
+            } else if (!data.success) {
+                // If the API returns success=false (e.g. 404), maybe the session/link is invalid
+                console.error("DEBUG: Backend returned error:", data.message);
+                clearInterval(payPollInterval);
             }
         } catch (err) {
             console.error("Polling Error:", err);
+            // Don't stop on single network error, wait for retry or timeout
         }
-    }, 4000); // Poll every 4 seconds to be safe
+    }, 4000); // Poll every 4 seconds
 }
 
 async function demoPaymentFlow(museum, visitor, total, btn, originalContent) {

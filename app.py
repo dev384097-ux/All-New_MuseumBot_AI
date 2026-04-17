@@ -521,19 +521,68 @@ def check_payment_status():
 
     try:
         is_paid = False
+        status = 'created'
         final_order_id = order_id
         
+        # 1. Handle Demo Simulation IDs (Prevent API errors if keys are placeholders or IDs are simulated)
+        if (link_id and str(link_id).startswith('DEMO_')) or (order_id and str(order_id).startswith('DEMO_')):
+            print(f"DEBUG: Handling Simulated ID (Link: {link_id}, Order: {order_id})")
+            # For simulation, we just return 'created' so polling continues, 
+            # unless some other logic triggers a success.
+            return jsonify({'success': True, 'paid': False, 'status': 'created'})
+
         if link_id:
             # Check Payment Link Status
-            pl = rzp_client.payment_link.fetch(link_id)
-            if pl['status'] == 'paid':
-                is_paid = True
-                final_order_id = pl.get('order_id', order_id)
+            try:
+                pl = rzp_client.payment_link.fetch(link_id)
+                status = pl['status']
+                print(f"DEBUG: Payment Link {link_id} | Status: {status}")
+                
+                if status == 'paid':
+                    is_paid = True
+                    final_order_id = pl.get('order_id', order_id)
+                elif status in ['cancelled', 'expired']:
+                    return jsonify({'success': True, 'paid': False, 'status': status, 'message': f'Payment link {status}'})
+                else:
+                    # Check if there are any failed payments for this link
+                    # We check the order ID associated with the link
+                    target_order_id = pl.get('order_id')
+                    try:
+                        search_params = {'order_id': target_order_id} if target_order_id else {'payment_link_id': link_id}
+                        payments = rzp_client.payment.all(search_params)
+                        p_items = payments.get('items', [])
+                        
+                        if p_items:
+                            # If ANY payment in the last 10 attempts failed AND none succeeded, 
+                            # we might want to flag it. But specifically, check the MOST RECENT.
+                            recent = p_items[0]
+                            print(f"DEBUG: Recent Payment ID: {recent['id']} | Status: {recent['status']}")
+                            if recent['status'] == 'failed':
+                                return jsonify({
+                                    'success': True, 
+                                    'paid': False, 
+                                    'status': 'failed', 
+                                    'message': recent.get('error_description', 'Payment Failed')
+                                })
+                    except Exception as e:
+                        print(f"Non-critical: Error fetching payments: {str(e)}")
+            except Exception as e:
+                print(f"DEBUG: API Error fetching link status: {str(e)}")
+                # If we get a 404 or Authentication error, we shouldn't just say 'created'
+                if "404" in str(e) or "authentication" in str(e).lower():
+                    return jsonify({'success': False, 'message': 'Payment provider error or invalid ID'})
+
         elif order_id:
             # Check Order Status
-            order = rzp_client.order.fetch(order_id)
-            if order['status'] == 'paid':
-                is_paid = True
+            try:
+                order = rzp_client.order.fetch(order_id)
+                status = order['status']
+                if status == 'paid':
+                    is_paid = True
+                elif status in ['cancelled', 'expired']:
+                    return jsonify({'success': True, 'paid': False, 'status': status, 'message': f'Order {status}'})
+            except Exception as e:
+                print(f"DEBUG: API Error fetching order status: {str(e)}")
 
         if is_paid:
             # Create booking in DB if not already created
@@ -558,7 +607,7 @@ def check_payment_status():
                 conn.close()
                 return jsonify({'success': True, 'paid': True, 'ticket_no': 'ALREADY_EXISTS'})
                 
-        return jsonify({'success': True, 'paid': False})
+        return jsonify({'success': True, 'paid': False, 'status': status})
     except Exception as e:
         print(f"Poll Error: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500

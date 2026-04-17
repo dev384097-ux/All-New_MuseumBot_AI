@@ -151,10 +151,18 @@ class MuseumChatbot:
                 'en': "Our digital curator is experiencing heavy traffic right now. Please try your request again later!",
                 'hi_native': "हमारा डिजिटल क्यूरेटर अभी भारी ट्रैफ़िक का सामना कर रहा है। कृपया थोड़ी देर बाद पुनः प्रयास करें!",
                 'hi_latin': "Abhi server pe heavy traffic hai. Kripya thodi der baad try karein!",
-                'ta_native': "தற்போது அதிக நெரிசலாக உள்ளது. தயவுசெய்து சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்!",
+                'ta_native': "தற்போது அதிக நெरीசலாக உள்ளது. தயவுசெய்து சிறிது நேரம் கழித்து மீண்டும் முயற்சிக்கவும்!",
                 'ta_latin': "Ippo heavy traffic iruku. Konjam neram kalichu try pannunga!",
                 'pa_native': "ਸਾਡੇ ਡਿਜੀਟਲ ਕਿਊਰੇਟਰ 'ਤੇ ਅਜੇ ਬਹੁਤ ਟ੍ਰੈਫਿਕ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਬਾਅਦ ਵਿੱਚ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ!",
-                'pa_latin': "Server te heavy traffic hai. Kripa karke thodi der baad try karo!"
+                'pa_latin': "Server te heavy traffic hai. Kripa karke thodi der baad try karo!",
+                'bn_native': "আমাদের ডিজিটাল কিউরেটর এখন খুব ব্যস্ত। অনুগ্রহ করে পরে আবার চেষ্টা করুন!",
+                'bn_latin': "Amader digital curator ekhon khub byasto. Onugroho kore pore abar chesta korun!",
+                'mr_native': "आमचे डिजिटल क्युरेटर सध्या खूप व्यस्त आहेत. कृपया काही वेळाने पुन्हा प्रयत्न करा!",
+                'mr_latin': "Amche digital curator sadhya khup vyasta ahet. Krupaya kahi velane punha प्रयत्न करा!",
+                'gu_native': "અમારા ડિજિટલ ક્યુરેટર અત્યારે ખૂબ જ વ્યસ્ત છે. કૃપા કરીને થોડા સમય પછી ફરી પ્રયાસ કરો!",
+                'gu_latin': "Amara digital curator atyare khub ja vyasta che. Krupa karine thoda samay pachhi fari prayas karo!",
+                'te_native': "మా డిజిటల్ క్యూరేటర్ ఇప్పుడు చాలా రద్దీగా ఉన్నారు. దయచేసి కాసేపటి తర్వాత మళ్ళీ ప్రయత్నించండి!",
+                'te_latin': "Ma digital curator ippudu chala raddiga unnaru. Dayachesi kasepati tharuvatha malli prayatninchandi!"
             }
         }
 
@@ -232,37 +240,63 @@ class MuseumChatbot:
         
         heritage_context = """
 SITE KNOWLEDGE BASE:
-1. National Museum, New Delhi: Premier destination with 200,000+ works covering 5,000 years of cultural heritage. Specializes in pre-historic to modern art.
-2. Indian Museum, Kolkata: Oldest in India (est. 1814). Famous for Mughal paintings, fossils, and skeletons.
-3. Salar Jung Museum, Hyderabad: One of the three National Museums. Huge individual collection of Asian and European art, textiles, and clocks.
-4. Chhatrapati Shivaji Maharaj Vastu Sangrahalaya (CSMVS), Mumbai: Indo-Saracenic building showcasing history from prehistoric to modern era.
-5. The Lion Capital: Iconic Ashokan sculpture (250 BCE) from Sarnath. Symbol of peace and the official Emblem of India.
-6. Dancing Girl: 4,500-year-old Harappan bronze masterpiece from Mohenjo-daro, showcasing early metallurgical skill.
-7. Tanjore Art: South Indian devotional paintings using 22-carat gold leaf and precious stone inlays.
-8. Imperial Armoury: Showcases legendary Damascus (Wootz) steel swords (Talwar, Katar) and Mughal/Maratha military craftsmanship.
+1. National Museum, New Delhi: 10 AM - 6 PM (Closed Mon). Metro: Central Secretariat (Yellow/Violet Line). Art: Indus Valley to Modern. Services: Library, Audio Guide, Cafe.
+2. Indian Museum, Kolkata: 10 AM - 5 PM (Closed Mon). Metro: Park Street. Art: Mughal paintings, Fossils, Mammal skeletons. Services: Museum Shop.
+3. Salar Jung Museum, Hyderabad: 10 AM - 5 PM (Closed Fri). Transport: Afzal Gunj Bus Stop. Collection: Asian/European art, Jade, Iconic Clock Collection. Services: Cafe.
+4. CSMVS, Mumbai: 10:15 AM - 6 PM. Transport: Near Churchgate/CST stations. Art: Harappan to Modern era.
 
-MUSEUM NETWORK:
-Also support visitors for: National Science Centre (Delhi), Nehru Science Centre (Mumbai), BITM (Kolkata), and Science City (Ahmedabad).
+ARTIFACT HIGHLIGHTS:
+- The Lion Capital: Ashokan sculpture (250 BCE). Symbolic of peace. Official Emblem of India.
+- Dancing Girl: Harappan bronze (Mohenjo-daro). 4,500 years old metallurgical masterpiece.
+- Tanjore Art: Devotional paintings using 22-carat gold leaf and precious stones.
+- Imperial Armoury: Damascus (Wootz) steel swords. Mughal and Maratha military excellence.
+
+MUSEUM SERVICES & NAVIGATION:
+- Parking: Free valet parking available in the North Wing of most primary sites.
+- Cafe: Curator's Cafe (2nd Floor) provides light meals/refreshments until 5 PM.
+- Accessibility: All national museums are equipped with ramps, elevators, and wheelchairs.
+- Directions: All major museums are centrally located and reachable by city metro or public buses.
+
+MUSEUM NETWORK (SCIENCE CENTERS):
+National Science Centre (Delhi), Nehru Science Centre (Mumbai), BITM (Kolkata), and Science City (Ahmedabad). Interactive, hands-on science exploration for families.
 """
 
-        return f"""You are a friendly AI Heritage & Cultural Expert. Treat users like a friend, keeping your language simple, warm, and easy to understand.
+        # Dynamic Script Rule
+        if locked_script == 'latin':
+            script_rule = """
+IMPORTANT SCRIPT RULE (LATIN ONLY):
+- You MUST use ONLY Latin characters (English letters).
+- Use Romanized transliteration (e.g., Hinglish for Hindi, Tanglish for Tamil, Punjablish for Punjabi).
+- Example Hinglish: 'Fossil fuels wo fuel hote hain jo zameen ke niche bante hain.'
+- ZERO NATIVE CHARACTERS: Never use Devanagari, Gurmukhi, Tamil script, etc."""
+        else:
+            script_rule = """
+IMPORTANT SCRIPT RULE (NATIVE ONLY):
+- You MUST use the NATIVE script of the language (e.g., Devanagari for Hindi, Gurmukhi for Punjabi, Tamil script for Tamil).
+- Example Hindi Native: 'जीवाश्म ईंधन वह प्राकृतिक ईंधन है...' 
+- Minimize Latin letters unless referring to technical terms or brand names."""
+
+        return f"""You are a friendly yet direct AI Heritage & Cultural Expert.
 
 CONTEXT & KNOWLEDGE:
 {heritage_context}
 
 CONVERSATION STYLE:
-1. Keep your answers short, ideally 2 to 5 lines for normal questions.
+1. Keep your answers short, ideally 2 to 5 lines.
 2. Speak like a knowledgeable yet approachable curator who loves history and art.
-3. If asked about "Mughal art", "Harappan relics", or any artifact in the site knowledge base, provide authoritative and engaging details.
+3. If the user changes language or script, YOU MUST FOLLOW THEIR LEAD precisely.
+4. NO GREETINGS: Do NOT start your response with Namaste, Hello, Sat Sri Akal, or similar greetings. Start directly with the answer.
+
+SCRIPT & LANGUAGE ENFORCEMENT:
+{script_rule}
+- Respond in Language: {locked_lang}
+- Respond in Script Type: {locked_script}
 
 STRICT RULES:
 1. NO MARKDOWN: Do NOT use **bold**, ## headers, or *italics*. Use plain text ONLY.
-2. EXCLUSIVE SCOPE: Only answer questions concerning history, art, culture, and the museums featured in the SITE KNOWLEDGE BASE and MUSEUM NETWORK. 
-3. If the user asks something completely unrelated (like "how to cook pasta"), politely redirect them to our museum highlights.
-4. [TECHNICAL] If the user exhibits clear intent to book tickets, include '[INIT_BOOKING]' at the VERY END.
-
-MULTILINGUAL SUPPORT & SESSION LOCK:
-* Respond in: {locked_lang} (Script: {locked_script})"""
+2. NO INTRODUCTORY GREETINGS: Strictly omit greetings and social pleasantries at the start of your response. Get straight to the point.
+3. COMPREHENSIVE HELP: Answer all queries accurately.
+4. [TECHNICAL] If the user exhibits clear intent to book tickets, include '[INIT_BOOKING]' at the VERY END."""
 
     def _translate_to_en(self, text):
         # Basic cleanup
@@ -334,19 +368,19 @@ MULTILINGUAL SUPPORT & SESSION LOCK:
             if text_lower in ["namaste", "namaskar"]:
                 return "hi"
 
-        hindi_keywords = ["mujhe", "chahiye", "kitna", "kaise", "kya", "hai", "h", "karna", "ke", "namaste", "shubh"]
-        tamil_keywords = ["venum", "enakku", "epadi", "irukinga", "vanakkam", "nanri", "pannalaam", "seiya"]
-        punjabi_keywords = ["mainu", "menu", "karni", "chahida", "kithe", "ki", "sat sri akal", "tuhanu"]
-        bengali_keywords = ["nomoskar", "bhalo", "lagbe", "korbo", "chai", "amar", "dorkar"]
-        telugu_keywords = ["naaku", "kavali", "namaste", "ela", "cheyali", "nenu"]
-        kannada_keywords = ["nanage", "beku", "namaskara", "madabeku", "naanu", "hege"]
-        malayalam_keywords = ["enikku", "venam", "namaskaram", "cheyyanam", "njan", "engane"]
-        gujarati_keywords = ["mane", "joie", "kem", "cho", "mare", "karvi", "su"]
-        marathi_keywords = ["mala", "pahije", "kashi", "karayche", "ahe", "mi", "kasa"]
+        # Expanded keyword lists (Native + Latin scripts)
+        hindi_keywords = ["mujhe", "chahiye", "kitna", "kaise", "kya", "hai", "h", "karna", "ke", "namaste", "shubh", "क्या", "कैसे", "है", "ह", "चाहिए", "मुझे", "यहा", "वहा"]
+        tamil_keywords = ["venum", "enakku", "epadi", "irukinga", "vanakkam", "nanri", "pannalaam", "seiya", "என்ன", "எப்படி", "வேணும்", "எனக்கு", "இருக்கீங்க", "என்று", "இருக்கு"]
+        punjabi_keywords = ["mainu", "menu", "karni", "chahida", "kithe", "ki", "sat sri akal", "tuhanu", "daso", "bare", "kehda", "hunde", "ਕੀ", "ਕਿਵੇਂ", "ਹੈ", "ਮੈਨੂੰ", "ਕਿਥੇ", "ਕਿਹੜਾ", "ਦੱਸੋ", "ਬਾਰੇ"]
+        bengali_keywords = ["nomoskar", "bhalo", "lagbe", "korbo", "chai", "amar", "dorkar", "beshi", "keno", "kon", "নমস্কার", "ভালো", "চাই", "আমার", "কেন", "বেশি"]
+        telugu_keywords = ["naaku", "kavali", "namaste", "ela", "cheyali", "nenu", "ekkuva", "mariyu", "enduku", "నాకు", "కావాలి", "ఎలా", "చేయాలి", "ఎందుకు"]
+        kannada_keywords = ["nanage", "beku", "namaskara", "madabeku", "naanu", "hege", "ನನಗೆ", "ಬೇಕು", "ಹೇಗೆ", "ಮಾಡಬೇಕು"]
+        malayalam_keywords = ["enikku", "venam", "namaskaram", "cheyyanam", "njan", "engane", "എനിക്ക്", "വേണം", "എങ്ങനെ", "ചെയ്യണം"]
+        gujarati_keywords = ["mane", "joie", "kem", "cho", "mare", "karvi", "su", "vadhu", "kayo", "ane", "che", "મને", "જોઈએ", "કેમ", "કરો", "શું", "વધારે"]
+        marathi_keywords = ["mala", "pahije", "kashi", "karayche", "ahe", "mi", "kasa", "jasta", "konta", "ani", "ka", "मला", "पाहिजे", "कशी", "करायचे", "आहे", "जास्त", "कोणता"]
         english_keywords = ["book", "ticket", "tickets", "the", "is", "where", "how", "what", "can", "i"]
         
         scores = {
-            # Weight common english loanwords lower to allow regional tie-breaking to succeed
             "en": sum(0.5 for w in english_keywords if re.search(r'\b' + w + r'\b', text_lower)),
             "hi": sum(1 for w in hindi_keywords if re.search(r'\b' + w + r'\b', text_lower)),
             "ta": sum(1 for w in tamil_keywords if re.search(r'\b' + w + r'\b', text_lower)),
@@ -359,25 +393,20 @@ MULTILINGUAL SUPPORT & SESSION LOCK:
             "mr": sum(1 for w in marathi_keywords if re.search(r'\b' + w + r'\b', text_lower))
         }
         
-        # If no keywords found, default to hi as it's the most likely Hinglish variant
-        # but only if total score is > 0, otherwise let langdetect handle baseline
         total_score = sum(scores.values())
         if total_score == 0:
             return None
             
-        # Find the max score
         max_score = max(scores.values())
-        
-        # Get all languages with the max score
         top_langs = [lang for lang, score in scores.items() if score == max_score]
         
-        # Prefer regional language if tied with English
         if "en" in top_langs and len(top_langs) > 1:
             top_langs.remove("en")
             
-        # If HI is in top langs (and it's not the only one), prefer HI for Hinglish fallback
-        if "hi" in top_langs:
-            return "hi"
+        if "hi" in top_langs and len(top_langs) > 1:
+            # If Punjabi or other regional language is ALSO tied with Hindi, prefer the regional one
+            # to capture Hinglish/Punjablish nuances better
+            top_langs.remove("hi")
             
         return top_langs[0]
 
@@ -477,21 +506,17 @@ MULTILINGUAL SUPPORT & SESSION LOCK:
             return self._get_localized_response(template_key, lang_hint, (locked_script, locked_script)), state_data
 
         # 1. Session-Based Language & Script Locking (after greeting check)
-        # Update dynamically if a clear language was detected, otherwise hold the session state
-        # This prevents switching back to English when users type "1" or "Tomorrow" during bookings
-        if locked_lang:
-            if dominant_lang:
-                locked_lang = dominant_lang
-        elif current_input_lang:
+        # Dynamic switching: If a clear language is detected in the current message, update the lock.
+        if dominant_lang:
+            locked_lang = dominant_lang
+        elif user_script == 'native' and current_input_lang and current_input_lang != 'en':
+            # Confidently switch if the user types in a native script for a different language
+            locked_lang = current_input_lang
+        elif not locked_lang and current_input_lang:
             locked_lang = current_input_lang
             
-        # STICKY SCRIPT LOCK (FIXED): Only update session script if input is clearly Latin or Native.
-        # If input is 'unknown' (e.g. 20-04-2026), hold the previous script lock.
+        # SCRIPT LOCK: Update session script if input is clearly Latin or Native.
         if user_script in ['latin', 'native']:
-            locked_script = user_script
-        elif state_data.get('locked_script'):
-            locked_script = state_data.get('locked_script')
-        else:
             locked_script = user_script
         
         state_data['locked_lang'] = locked_lang
