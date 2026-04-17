@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background: #0a0a09; color: white; font-family: sans-serif; padding: 50px; }
+        .payment-visual { background: #11111d; padding: 20px; border-radius: 10px; border: 1px solid #c5a059; width: 300px; text-align: center; }
+        #payStatusLabel { display: block; margin-top: 10px; font-weight: bold; }
+        #payStatusSub { margin-top: 5px; font-size: 0.8rem; color: #c5a059; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h3>Manual UI Logic Verification</h3>
+    <div class="payment-visual">
+        <div id="qrPlaceholder" style="width:150px; height:150px; margin: 0 auto; display:flex; align-items:center; justify-content:center; background:#11111d; border:2px dashed #c5a059; border-radius:10px;">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: #c5a059;"></i>
+        </div>
+        <span id="payStatusLabel">Scanning...</span>
+        <div id="payStatusSub">
+            <i class="fa-solid fa-circle-notch fa-spin"></i> Awaiting Payment...
+        </div>
+    </div>
+
+    <button onclick="testFailure()" style="margin-top: 20px; padding: 10px; cursor: pointer;">Simulate Failure Response</button>
+
+    <script>
+        function testFailure() {
+            // Mocking the 'data' response from /api/check_payment_status
+            const data = {
+                success: True,
+                paid: false,
+                status: 'failed',
+                message: 'Customer opted for failure on demo bank page'
+            };
+
+            // Logic copied from corrected main.js
+            if (data.success && (data.status === 'cancelled' || data.status === 'expired' || data.status === 'failed')) {
+                const subLabel = document.getElementById('payStatusSub');
+                const mainLabel = document.getElementById('payStatusLabel');
+                
+                if (subLabel) {
+                    subLabel.style.display = 'block';
+                    subLabel.style.color = '#ff4d4d'; // Red alert color for failure
+                    subLabel.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ${data.message || 'Payment Failed. Please try again later.'}`;
+                }
+                if (mainLabel) {
+                    mainLabel.textContent = "Payment Error";
+                    mainLabel.style.color = '#ff4d4d';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
