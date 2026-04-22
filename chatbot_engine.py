@@ -16,7 +16,7 @@ load_dotenv()
 DetectorFactory.seed = 0
 
 # Configuration constants
-MAX_RETRIES = 1
+MAX_RETRIES = 2
 DEFAULT_RETRY_DELAY = 1.0  # seconds
 MAX_TOKENS = 1000
 MODEL_PRIORITY = [
@@ -315,7 +315,6 @@ STRICT RULES:
             
             # Use 'auto' to ensure it tries its best
             translated = GoogleTranslator(source='auto', target='en').translate(text)
-            print(f"DEBUG: Detected {detected}, Translated: {translated}")
             return translated, detected
         except Exception as e:
             print(f"DEBUG Translation Error: {e}")
@@ -667,10 +666,11 @@ STRICT RULES:
 
                 except Exception as e:
                     error_msg = str(e)
-                    is_quota_error = any(code in error_msg for code in ["429", "ResourceExhausted", "Quota exceeded"])
+                    # Expand resilience to include 503 UNAVAILABLE errors (High Demand)
+                    is_retryable = any(code in error_msg for code in ["429", "ResourceExhausted", "Quota exceeded", "503", "UNAVAILABLE"])
                     
-                    if is_quota_error:
-                        print(f"WARNING: Rate limit exceeded (429). Attempt {attempt+1}/{MAX_RETRIES+1}")
+                    if is_retryable:
+                        print(f"WARNING: AI Service Busy/Limited ({error_msg}). Attempt {attempt+1}/{MAX_RETRIES+1}")
                         if attempt < MAX_RETRIES:
                             # Try to extract retry delay from exception if available
                             wait_time = DEFAULT_RETRY_DELAY
