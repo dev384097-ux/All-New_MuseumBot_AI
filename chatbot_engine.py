@@ -689,8 +689,8 @@ STRICT RULES:
         
         conn = get_db_connection()
         conn.execute(
-            'INSERT INTO bookings (user_id, visitor_name, visit_date, exhibition_id, num_tickets, total_price, ticket_hash) VALUES (?, ?, ?, ?, ?, ?, ?)',
-            (user_id, 'Heritage Guest', visit_date, state_data['exhibition']['id'], state_data['count'], state_data['total'], ticket_hash)
+            'INSERT INTO bookings (user_id, visitor_name, visit_date, exhibition_id, num_tickets, total_price, ticket_hash, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            (user_id, 'Heritage Guest', visit_date, state_data['exhibition']['id'], state_data['count'], state_data['total'], ticket_hash, 'Confirmed')
         )
         conn.commit()
         conn.close()

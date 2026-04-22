@@ -663,7 +663,7 @@ def my_bookings():
     bookings = conn.execute('''
         SELECT b.*, e.title as museum_name, e.description as museum_desc
         FROM bookings b
-        JOIN exhibitions e ON b.exhibition_id = e.id
+        LEFT JOIN exhibitions e ON b.exhibition_id = e.id
         WHERE b.user_id = ?
         ORDER BY b.id DESC
     ''', (user_id,)).fetchall()
