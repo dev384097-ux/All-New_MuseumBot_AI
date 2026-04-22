@@ -20,10 +20,10 @@ MAX_RETRIES = 2
 DEFAULT_RETRY_DELAY = 1.0  # seconds
 MAX_TOKENS = 1000
 MODEL_PRIORITY = [
-    'gemini-2.5-flash',       # Latest verified available model
-    'gemini-2.0-flash',       # Stable flash model
-    'gemini-flash-latest',    # Alias for latest flash
-    'gemini-2.0-flash-lite',  # Lightweight option
+    'gemini-1.5-flash',       # Stable, high-speed, high-quota
+    'gemini-1.5-pro',         # Highly capable, stable
+    'gemini-2.0-flash-exp',   # Experimental 2.0
+    'gemini-flash-latest'     # Alias for latest flash
 ]
 
 class MuseumChatbot:
