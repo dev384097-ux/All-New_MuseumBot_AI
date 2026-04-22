@@ -13,10 +13,75 @@ from authlib.integrations.flask_client import OAuth
 from flask_mail import Mail, Message
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail as SendGridMail
+import sib_api_v3_sdk
+from sib_api_v3_sdk.rest import ApiException
 import qrcode
 import io
 import base64
 import time
+
+# --- UNIFIED EMAIL SERVICE ---
+def send_otp_email(email, name, otp):
+    """
+    Consolidated email sender with multi-provider failover.
+    Priority: 1. Brevo (New) -> 2. SendGrid -> 3. SMTP (Gmail)
+    """
+    subject = "Your MuseumBot Verification Code"
+    body = f"Hello {name},\n\nYour One-Time Password (OTP) for MuseumBot is: {otp}\n\nPlease enter this on the verification page to complete your login."
+    
+    # 1. BREVO (Primary)
+    brevo_key = os.getenv('BREVO_API_KEY', '').strip()
+    if brevo_key:
+        print("DEBUG: Attempting Brevo API delivery...")
+        try:
+            configuration = sib_api_v3_sdk.Configuration()
+            configuration.api_key['api-key'] = brevo_key
+            api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
+            
+            sender_email = os.getenv('SENDER_EMAIL', 'guptadev853@gmail.com').strip()
+            send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
+                sender={"name": "MuseumBot AI", "email": sender_email},
+                to=[{"email": email, "name": name}],
+                subject=subject,
+                plain_text_content=body
+            )
+            api_instance.send_transac_email(send_smtp_email)
+            print("DEBUG: Email sent via Brevo successfully!")
+            return True
+        except ApiException as e:
+            print(f"DEBUG: Brevo API failed: {str(e)}")
+            
+    # 2. SENDGRID (Secondary)
+    sendgrid_key = os.getenv('SENDGRID_API_KEY', '').strip()
+    if sendgrid_key:
+        print("DEBUG: Using SendGrid API fallback...")
+        try:
+            sg_client = SendGridAPIClient(sendgrid_key)
+            sender = os.getenv('SENDER_EMAIL', 'guptadev853@gmail.com').strip()
+            message = SendGridMail(
+                from_email=sender,
+                to_emails=email,
+                subject=subject,
+                plain_text_content=body
+            )
+            sg_client.send(message)
+            print("DEBUG: Email sent via SendGrid successfully!")
+            return True
+        except Exception as sg_err:
+            print(f"DEBUG: SendGrid API failed: {str(sg_err)}")
+
+    # 3. SMTP (Final Attempt)
+    try:
+        import socket
+        socket.setdefaulttimeout(5)
+        msg = Message(subject, recipients=[email])
+        msg.body = body
+        mail.send(msg)
+        print("DEBUG: Email sent via SMTP successfully!")
+        return True
+    except Exception as e:
+        print(f"CRITICAL SMTP ERROR: {str(e)}")
+        return False
 
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -190,21 +255,15 @@ def google_mock_callback(user_info):
     conn.commit()
     conn.close()
     
-    # Send OTP (Mock)
-    if not os.getenv('MAIL_PASSWORD') or "your" in os.getenv('MAIL_PASSWORD').lower():
-        print(f"MOCK EMAIL: To {email}, OTP is {otp}")
-        session['mock_otp'] = otp # For easy testing
-        flash(f"Check server console for OTP (Mock Mode).")
-    else:
-        try:
-            msg = Message("Your MuseumBot Verification Code", recipients=[email])
-            msg.body = f"Hello {name},\n\nYour OTP is: {otp}"
-            mail.send(msg)
-        except:
-            flash("Email config failed. Check console for OTP.")
-            session['mock_otp'] = otp
+    # Send OTP using unified service
+    success = send_otp_email(email, name, otp)
+    if not success:
+        print(f"MOCK FAILSAFE: OTP for {email} is {otp}")
+        session['mock_otp'] = otp
+        flash(f"Check server console for OTP (Delivery failed).")
             
     session['temp_email'] = email
+    session['temp_name'] = name
     return redirect(url_for('verify_otp'))
 
 @app.route('/auth/callback')
@@ -241,49 +300,16 @@ def google_callback():
         conn.commit()
         conn.close()
         
-        # 3. Send OTP Email with Timeout protection
-        # We print the code to the log BEFORE sending, just in case the network hangs
-        print(f"DEBUG: Attempting to send OTP email to {email}...")
-        print(f"[FAIL-SAFE] OTP for {email} is: {otp}")
+        # 3. Send OTP using unified service (Brevo -> SendGrid -> SMTP)
+        success = send_otp_email(email, name, otp)
         
-        # 3a. Try SendGrid API (Recommended for Render)
-        sendgrid_key = os.getenv('SENDGRID_API_KEY', '').strip()
-        if sendgrid_key:
-            print("DEBUG: Using SendGrid API for delivery...")
-            try:
-                sg_client = SendGridAPIClient(sendgrid_key)
-                sender = os.getenv('SENDER_EMAIL', app.config['MAIL_USERNAME']).strip()
-                message = SendGridMail(
-                    from_email=sender,
-                    to_emails=email,
-                    subject="Your MuseumBot Verification Code",
-                    plain_text_content=f"Hello {name},\n\nYour One-Time Password (OTP) for MuseumBot is: {otp}\n\nPlease enter this on the verification page to complete your login."
-                )
-                sg_client.send(message)
-                print("DEBUG: Email sent via SendGrid successfully!")
-                session['temp_email'] = email
-                session['temp_name'] = name
-                return redirect(url_for('verify_otp'))
-            except Exception as sg_err:
-                print(f"DEBUG: SendGrid API failed: {str(sg_err)}")
-        
-        # 3b. Fallback to Standard SMTP (if SendGrid not configured)
-        try:
-            # Set a local timeout for this send attempt (5 seconds)
-            import socket
-            socket.setdefaulttimeout(5)
-            
-            msg = Message("Your MuseumBot Verification Code", recipients=[email])
-            msg.body = f"Hello {name},\n\nYour One-Time Password (OTP) for MuseumBot is: {otp}\n\nPlease enter this on the verification page to complete your login."
-            mail.send(msg)
-            print("DEBUG: Email sent successfully!")
+        if success:
             session['temp_email'] = email
             session['temp_name'] = name
             return redirect(url_for('verify_otp'))
-        except Exception as e:
-            print(f"CRITICAL SMTP ERROR: {str(e)}")
+        else:
             print(f"[FAIL-SAFE] OTP for {email} is: {otp}")
-            flash(f"Email service temporarily unreachable. Code has been logged to the server console for developers.", "warning")
+            flash(f"Email service temporarily unreachable. Code has been logged to the server console.", "warning")
             session['temp_email'] = email
             session['temp_name'] = name
             return redirect(url_for('verify_otp'))
