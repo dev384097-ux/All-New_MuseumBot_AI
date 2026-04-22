@@ -39,12 +39,13 @@ def send_otp_email(email, name, otp):
             api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
             
             sender_email = os.getenv('SENDER_EMAIL', 'botonlinemuseum@gmail.com').strip()
+            html_body = f"<html><body><p>{body.replace(chr(10), '<br>')}</p></body></html>"
             send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
                 sender={"name": "MuseumBot AI", "email": sender_email},
                 to=[{"email": email, "name": name}],
                 subject=subject,
                 text_content=body,
-                html_content=f"<html><body><p>{body.replace('\\n', '<br>')}</p></body></html>"
+                html_content=html_body
             )
             api_instance.send_transac_email(send_smtp_email)
             print("DEBUG: Email sent via Brevo successfully!")
