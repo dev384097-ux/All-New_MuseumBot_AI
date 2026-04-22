@@ -139,13 +139,13 @@ class MuseumChatbot:
                 'pa_latin': "Security sadi priority hai, 24/7 CCTV surveillance hai."
             },
             'ask_tier': {
-                'en': "Please select the ticket type for these {count} tickets:<br>1. Adult (₹{price} each)<br>2. Student / Child (₹1 each)<br>3. Group (5+) (₹80 each)",
-                'hi_native': "इन {count} टिकटों के लिए प्रकार चुनें:<br>1. व्यक्ति (₹{price} प्रत्येक)<br>2. छात्र / बच्चा (₹1 प्रत्येक)<br>3. समूह 5+ (₹80 प्रत्येक)",
-                'hi_latin': "In {count} tickets ke liye type chunein:<br>1. Adult (₹{price} each)<br>2. Student / Child (₹1 each)<br>3. Group 5+ (₹80 each)",
-                'ta_native': "இந்த {count} டிக்கெட்டுகளுக்கான வகையைத் தேர்ந்தெடுக்கவும்:<br>1. பெரியவர் (₹{price})<br>2. மாணவர் / குழந்தை (₹1)<br>3. குழு 5+ (₹80)",
-                'ta_latin': "Inidhu {count} tickets-kku type choose pannunga:<br>1. Adult (₹{price})<br>2. Student / Child (₹1)<br>3. Group 5+ (₹80)",
-                'pa_native': "ਇਹਨਾਂ {count} ਟਿਕਟਾਂ ਲਈ ਕਿਸਮ ਚੁਣੋ:<br>1. ਬਾਲਗ (₹{price} ਹਰੇਕ)<br>2. ਵਿਦਿਆਰਥੀ / ਬੱਚਾ (₹1 ਹਰੇਕ)<br>3. ਸਮੂਹ 5+ (₹80 ਹਰੇਕ)",
-                'pa_latin': "Inna {count} ticktan layi type chuno:<br>1. Adult (₹{price})<br>2. Student / Child (₹1)<br>3. Group 5+ (₹80)"
+                'en': "Please select the ticket type for these {count} tickets:<br>1. Adult (₹{price} each)<br>2. Student / Child (₹{s_price} each)<br>3. Group (5+) (₹{g_price} each)",
+                'hi_native': "इन {count} टिकटों के लिए प्रकार चुनें:<br>1. व्यक्ति (₹{price} प्रत्येक)<br>2. छात्र / बच्चा (₹{s_price} प्रत्येक)<br>3. समूह 5+ (₹{g_price} प्रत्येक)",
+                'hi_latin': "In {count} tickets ke liye type chunein:<br>1. Adult (₹{price} each)<br>2. Student / Child (₹{s_price} each)<br>3. Group 5+ (₹{g_price} each)",
+                'ta_native': "இந்த {count} டிக்கெட்டுகளுக்கான வகையைத் தேர்ந்தெடுக்கவும்:<br>1. பெரியவர் (₹{price})<br>2. மாணவர் / குழந்தை (₹{s_price})<br>3. குழு 5+ (₹{g_price})",
+                'ta_latin': "Inidhu {count} tickets-kku type choose pannunga:<br>1. Adult (₹{price})<br>2. Student / Child (₹{s_price})<br>3. Group 5+ (₹{g_price})",
+                'pa_native': "ਇਹਨਾਂ {count} ਟਿਕਟਾਂ ਲਈ ਕਿਸਮ ਚੁਣੋ:<br>1. ਬਾਲਗ (₹{price} ਹਰੇਕ)<br>2. ਵਿਦਿਆਰਥੀ / ਬੱਚਾ (₹{s_price} ਹਰੇਕ)<br>3. ਸਮੂਹ 5+ (₹{g_price} ਹਰੇਕ)",
+                'pa_latin': "Inna {count} ticktan layi type chuno:<br>1. Adult (₹{price})<br>2. Student / Child (₹{s_price})<br>3. Group 5+ (₹{g_price})"
             },
             'unknown': {
                 'en': "Our digital curator is experiencing heavy traffic right now. Please try your request again later!",
@@ -557,24 +557,29 @@ STRICT RULES:
                 if count > 0:
                     state_data['count'] = count
                     state_data['state'] = 'awaiting_ticket_tier'
-                    return self._get_localized_response('ask_tier', user_lang, final_script_data, count=count, price=state_data['exhibition']['price']), state_data
+                    ex = state_data['exhibition']
+                    return self._get_localized_response('ask_tier', user_lang, final_script_data, 
+                                                        count=count, price=ex['price'], s_price=ex.get('student_price', 1.0), g_price=ex.get('group_price', 80.0)), state_data
 
         elif state == 'awaiting_ticket_tier':
             # Logic to handle 1 (Adult), 2 (Student), 3 (Group)
             total = 0
             tier_name = "Adult"
+            ex = state_data['exhibition']
             
             if "3" in clean_msg or "group" in msg_lower or "jhund" in msg_lower or "samuh" in msg_lower:
                 if state_data['count'] < 5:
                     state_data['count'] = 5 # Enforce minimum 5 for group booking
-                total = state_data['count'] * 80 # Group rate
+                rate = ex.get('group_price', 80.0)
+                total = state_data['count'] * rate
                 tier_name = "Group Booking"
             elif "2" in clean_msg or "student" in msg_lower or "child" in msg_lower or "bacha" in msg_lower:
-                total = state_data['count'] * 1
+                rate = ex.get('student_price', 1.0)
+                total = state_data['count'] * rate
                 tier_name = "Student/Child"
             else:
                 # Default to Adult if they say 1 or something else
-                total = state_data['count'] * state_data['exhibition']['price']
+                total = state_data['count'] * ex['price']
             
             state_data['total'] = total
             state_data['tier'] = tier_name

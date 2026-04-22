@@ -32,6 +32,8 @@ def init_db():
             title TEXT NOT NULL,
             description TEXT,
             price REAL NOT NULL,
+            student_price REAL DEFAULT 1.0,
+            group_price REAL DEFAULT 80.0,
             availability_status TEXT DEFAULT 'Open',
             opening_time TEXT DEFAULT '09:30',
             closing_time TEXT DEFAULT '18:00',
@@ -79,12 +81,13 @@ def init_db():
     c.execute('SELECT COUNT(*) FROM exhibitions')
     if c.fetchone()[0] == 0:
         exhibitions = [
-            ("National Science Centre, New Delhi", "Premier science museum in the capital with interactive galleries.", 100.0, '09:30', '18:00', 'Holi & Diwali'),
-            ("Nehru Science Centre, Mumbai", "India's largest interactive science center located in Worli.", 100.0, '09:30', '18:00', 'Holi & Diwali'),
-            ("BITM Kolkata", "The first science museum in India, focusing on industrial and technological heritage.", 100.0, '09:30', '18:00', 'Holi & Diwali'),
-            ("Science City, Ahmedabad", "A large-scale science center featuring an IMAX theater and pavilion.", 100.0, '10:00', '20:00', 'Every Monday')
+            ("National Science Centre, New Delhi", "Premier science museum in the capital with interactive galleries.", 100.0, 1.0, 80.0, '09:30', '18:00', 'Holi & Diwali'),
+            ("Nehru Science Centre, Mumbai", "India's largest interactive science center located in Worli.", 100.0, 1.0, 80.0, '09:30', '18:00', 'Holi & Diwali'),
+            ("BITM Kolkata", "The first science museum in India, focusing on industrial and technological heritage.", 80.0, 1.0, 60.0, '09:30', '18:00', 'Holi & Diwali'),
+            ("Science City, Ahmedabad", "A large-scale science center featuring an IMAX theater and pavilion.", 120.0, 20.0, 100.0, '10:00', '20:00', 'Every Monday'),
+            ("Salar Jung Museum, Hyderabad", "Home to one of the largest private collections in the world.", 150.0, 50.0, 120.0, '10:00', '17:00', 'Every Friday')
         ]
-        c.executemany('INSERT INTO exhibitions (title, description, price, opening_time, closing_time, holidays) VALUES (?, ?, ?, ?, ?, ?)', exhibitions)
+        c.executemany('INSERT INTO exhibitions (title, description, price, student_price, group_price, opening_time, closing_time, holidays) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', exhibitions)
 
 
     # Insert some dynamic mock announcements if empty

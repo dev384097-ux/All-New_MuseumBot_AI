@@ -94,6 +94,38 @@ function manualQty() {
     updateSummary();
 }
 
+function onMuseumChange() {
+    updateTicketPrices();
+    updateSummary();
+}
+
+function updateTicketPrices() {
+    const museumId = document.getElementById('museumSelect').value;
+    if (!museumId) return;
+
+    const museum = MUSEUMS_DATA.find(m => m.id == museumId);
+    if (!museum) return;
+
+    // Update Prices in the cards
+    const priceAdult = museum.price;
+    const priceStudent = museum.student_price;
+    const priceGroup = museum.group_price;
+
+    document.getElementById('priceAdult').innerText = `₹${priceAdult}`;
+    document.getElementById('priceStudent').innerText = `₹${priceStudent}`;
+    document.getElementById('priceGroup').innerText = `₹${priceGroup}`;
+
+    // Update onclick handlers to use NEW prices
+    document.getElementById('tierAdult').setAttribute('onclick', `selectTicket(this, ${priceAdult}, 'Adult')`);
+    document.getElementById('tierStudent').setAttribute('onclick', `selectTicket(this, ${priceStudent}, 'Student')`);
+    document.getElementById('tierGroup').setAttribute('onclick', `selectTicket(this, ${priceGroup}, 'Group')`);
+
+    // Force update currently selected price if tier is still the same
+    if (selectedTier === "Adult") selectedPrice = priceAdult;
+    else if (selectedTier === "Student") selectedPrice = priceStudent;
+    else if (selectedTier === "Group") selectedPrice = priceGroup;
+}
+
 function autoUpdateQty() {
     const input = document.getElementById('additionalGuests');
     const text = input.value;

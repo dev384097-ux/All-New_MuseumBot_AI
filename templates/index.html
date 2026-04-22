@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script>
         window.RZP_KEY_ID = "{{ rzp_key_id }}";
+        window.MUSEUMS_DATA = {{ museums | tojson | safe }};
         
         function toggleTheme() {
             const body = document.body;
@@ -595,13 +596,11 @@
                             <label class="form-label">Destination Museum Site</label>
                             <div class="form-input-wrapper">
                                 <i class="fa-solid fa-building-columns form-input-icon"></i>
-                                <select class="form-select" id="museumSelect" onchange="updateSummary()">
+                                <select class="form-select" id="museumSelect" onchange="onMuseumChange()">
                                     <option value="">Select a Heritage Site…</option>
-                                    <option>National Science Centre, New Delhi</option>
-                                    <option>Nehru Science Centre, Mumbai</option>
-                                    <option>Indian Museum, Kolkata</option>
-                                    <option>Salar Jung Museum, Hyderabad</option>
-                                    <option>Science City, Ahmedabad</option>
+                                    {% for m in museums %}
+                                    <option value="{{ m.id }}">{{ m.title }}</option>
+                                    {% endfor %}
                                 </select>
 
                             </div>
@@ -632,19 +631,19 @@
                     <div class="step-panel" id="step2">
                         <label class="form-label">Ticket Tier</label>
                         <div class="ticket-grid-new">
-                            <div class="ticket-card-mini selected" onclick="selectTicket(this, 100, 'Adult')">
+                            <div class="ticket-card-mini selected" id="tierAdult" onclick="selectTicket(this, 100, 'Adult')">
                                 <div class="ticket-badge">Standard</div>
-                                <span class="ticket-price-val">₹100</span>
+                                <span class="ticket-price-val" id="priceAdult">₹100</span>
                                 <span class="ticket-tier-name">Adult Member</span>
                             </div>
-                            <div class="ticket-card-mini" onclick="selectTicket(this, 1, 'Student')">
+                            <div class="ticket-card-mini" id="tierStudent" onclick="selectTicket(this, 1, 'Student')">
                                 <div class="ticket-badge">Discounted</div>
-                                <span class="ticket-price-val">₹1</span>
+                                <span class="ticket-price-val" id="priceStudent">₹1</span>
                                 <span class="ticket-tier-name">Student / Child</span>
                             </div>
-                            <div class="ticket-card-mini" onclick="selectTicket(this, 80, 'Group')">
+                            <div class="ticket-card-mini" id="tierGroup" onclick="selectTicket(this, 80, 'Group')">
                                 <div class="ticket-badge">5+ Group</div>
-                                <span class="ticket-price-val">₹80</span>
+                                <span class="ticket-price-val" id="priceGroup">₹80</span>
                                 <span class="ticket-tier-name">Group Booking</span>
                             </div>
                         </div>

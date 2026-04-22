@@ -141,8 +141,8 @@ def home():
     # Fetch latest announcements
     conn = get_db_connection()
     announcements = conn.execute('SELECT * FROM announcements WHERE is_active = 1 ORDER BY id DESC').fetchall()
-    museums = conn.execute('SELECT * FROM exhibitions').fetchall()
-
+    museums_rows = conn.execute('SELECT * FROM exhibitions').fetchall()
+    museums = [dict(row) for row in museums_rows]
     conn.close()
     
     return render_template('index.html', 
