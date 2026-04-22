@@ -475,12 +475,19 @@ STRICT RULES:
         locked_lang = state_data.get('locked_lang')
         locked_script = state_data.get('locked_script')
         
+        supported_langs = ['en', 'hi', 'ta', 'pa', 'bn', 'te', 'kn', 'ml', 'gu', 'mr']
+        
         user_script_data = self._detect_script(message)
         user_script, script_name = user_script_data
         
         # Initial detection
         dominant_lang = self._detect_dominant_language(clean_msg)
         translated_msg, detected_lang = self._translate_to_en(message)
+        
+        # Whitelist the detected language - if it's not supported (like Indonesian 'id'), default to 'en'
+        if detected_lang not in supported_langs:
+            detected_lang = 'en'
+            
         current_input_lang = dominant_lang if dominant_lang and user_script == 'latin' else detected_lang
 
         # 2. Fast-Path Greeting Logic - Word-boundary specific
