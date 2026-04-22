@@ -99,9 +99,13 @@
     <!-- ANNOUNCEMENTS TICKER / SECTION -->
     <section class="announcement-bar">
         <div class="announcement-track">
-            <span><i class="fa-solid fa-bullhorn"></i> <strong>LATEST:</strong> Special Exhibition on "Ancient Indian Astronomy" now open at National Science Centre Delhi.</span>
-            <span><i class="fa-solid fa-circle-info"></i> International Museum Day celebrations starting May 18th across all NCSM units.</span>
-            <span><i class="fa-solid fa-star"></i> New "Space Odyssey" show launched at Science City Ahmedabad.</span>
+            {% for news in announcements[:5] %}
+            <span><i class="fa-solid fa-bullhorn"></i> <strong>LATEST:</strong> {{ news.title }}: {{ news.description[:80] }}{% if news.description|length > 80 %}...{% endif %}</span>
+            {% endfor %}
+            
+            {% if not announcements %}
+            <span><i class="fa-solid fa-circle-info"></i> Welcome to the MuseumBot Portal. Stay tuned for latest heritage updates!</span>
+            {% endif %}
         </div>
     </section>
 
