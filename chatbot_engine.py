@@ -1,6 +1,5 @@
 from google import genai
 from google.genai import types
-import json
 import os
 import re
 import uuid
@@ -721,45 +720,3 @@ STRICT RULES:
         
         state_data['state'] = 'idle'
         return {'success': True, 'chat_message': f"Payment Successful! 🎉<br>Booking ID: {ticket_hash}<br>Enjoy your visit to the museum!"}, state_data
-
-    def curate_news(self, museum_title="National Science Centre, New Delhi"):
-        """Uses AI with Google Search tool to find real-time news about a specific museum."""
-        if not self.client or not self.model_id:
-            return None
-            
-        try:
-            # Enable Google Search Tool
-            search_tool = types.Tool(google_search=types.GoogleSearch())
-            
-            prompt = f"""
-            Search for the latest real-world news, events, or exhibitions for '{museum_title}' or Indian Museum Heritage in 2026.
-            Return ONLY a JSON object with these fields:
-            - title: Catchy headline
-            - description: 1-2 sentences about the event
-            - date: Use '23 Apr 2026' format
-            - url: A real news link or the museum's official website
-            
-            Strictly return ONLY the raw JSON. No markdown.
-            """
-            
-            response = self.client.models.generate_content(
-                model=self.model_id,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    tools=[search_tool],
-                    temperature=0.2
-                )
-            )
-            
-            # Extract JSON from response
-            text = response.text.strip()
-            # Handle possible markdown backticks if AI ignores instructions
-            if "```json" in text:
-                text = text.split("```json")[1].split("```")[0].strip()
-            elif "```" in text:
-                text = text.split("```")[1].strip()
-                
-            return json.loads(text)
-        except Exception as e:
-            print(f"ERROR: News curation failed for {museum_title}: {e}")
-            return None
