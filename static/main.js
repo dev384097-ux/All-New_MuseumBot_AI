@@ -101,7 +101,13 @@ function onMuseumChange() {
 
 function updateTicketPrices() {
     const museumId = document.getElementById('museumSelect').value;
-    if (!museumId) return;
+    if (!museumId) {
+        if (document.getElementById('priceAdult')) document.getElementById('priceAdult').innerText = `₹---`;
+        if (document.getElementById('priceStudent')) document.getElementById('priceStudent').innerText = `₹---`;
+        if (document.getElementById('priceGroup')) document.getElementById('priceGroup').innerText = `₹---`;
+        return;
+    }
+
 
     const museum = MUSEUMS_DATA.find(m => m.id == museumId);
     if (!museum) return;
