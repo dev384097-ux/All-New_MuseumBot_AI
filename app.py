@@ -334,12 +334,16 @@ def chat():
     if 'username' in session:
         bot_state['visitor_name'] = session['username']
     
-    response_text, updated_state = chatbot.process_message(user_message, bot_state)
-    
-    session['chatbot_state'] = updated_state
-    session.modified = True
-    
-    return jsonify({'response': response_text})
+    try:
+        response_text, updated_state = chatbot.process_message(user_message, bot_state)
+        session['chatbot_state'] = updated_state
+        session.modified = True
+        return jsonify({'response': response_text})
+    except Exception as e:
+        print(f"ERROR in /api/chat: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'response': "I am sorry, but I encountered an internal error. Please try again later."}), 500
 
 @app.route('/api/pay', methods=['POST'])
 def pay():

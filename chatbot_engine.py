@@ -558,14 +558,25 @@ STRICT RULES:
                     state_data['count'] = count
                     state_data['state'] = 'awaiting_ticket_tier'
                     ex = state_data['exhibition']
+                    # Ensure ex is a dict (if retrieved from session)
+                    if not isinstance(ex, dict):
+                        ex = dict(ex)
+                    
+                    # Safety defaults
+                    price = ex.get('price', 100.0)
+                    s_price = ex.get('student_price', 1.0)
+                    g_price = ex.get('group_price', 80.0)
+                    
                     return self._get_localized_response('ask_tier', user_lang, final_script_data, 
-                                                        count=count, price=ex['price'], s_price=ex.get('student_price', 1.0), g_price=ex.get('group_price', 80.0)), state_data
+                                                        count=count, price=price, s_price=s_price, g_price=g_price), state_data
 
         elif state == 'awaiting_ticket_tier':
             # Logic to handle 1 (Adult), 2 (Student), 3 (Group)
             total = 0
             tier_name = "Adult"
             ex = state_data['exhibition']
+            if not isinstance(ex, dict):
+                ex = dict(ex)
             
             if "3" in clean_msg or "group" in msg_lower or "jhund" in msg_lower or "samuh" in msg_lower:
                 if state_data['count'] < 5:
