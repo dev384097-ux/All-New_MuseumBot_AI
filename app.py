@@ -43,7 +43,8 @@ def send_otp_email(email, name, otp):
                 sender={"name": "MuseumBot AI", "email": sender_email},
                 to=[{"email": email, "name": name}],
                 subject=subject,
-                plain_text_content=body
+                text_content=body,
+                html_content=f"<html><body><p>{body.replace('\\n', '<br>')}</p></body></html>"
             )
             api_instance.send_transac_email(send_smtp_email)
             print("DEBUG: Email sent via Brevo successfully!")
