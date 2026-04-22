@@ -137,10 +137,22 @@ def home():
     
     if 'session_id' not in session:
         session['session_id'] = str(uuid.uuid4())
+        
+    # Fetch latest announcements
+    conn = get_db_connection()
+    announcements = conn.execute('SELECT * FROM announcements WHERE is_active = 1 ORDER BY id DESC').fetchall()
+    museums = conn.execute('SELECT * FROM exhibitions').fetchall()
+
+    conn.close()
+    
     return render_template('index.html', 
                           logged_in=is_logged_in, 
                           username=username,
-                          rzp_key_id=RAZORPAY_KEY_ID)
+                          rzp_key_id=RAZORPAY_KEY_ID,
+                          announcements=announcements,
+                          museums=museums)
+
+
 
 @app.route('/login/google')
 def login_google():
@@ -542,6 +554,19 @@ def check_payment_status():
                     is_paid = True
                     final_order_id = pl.get('order_id', order_id)
                 elif status in ['cancelled', 'expired']:
+                    # Record the failure/expiry in the DB
+                    conn = get_db_connection()
+                    existing = conn.execute('SELECT id FROM bookings WHERE razorpay_order_id = ?', (final_order_id or link_id,)).fetchone()
+                    if not existing:
+                        exhib = conn.execute('SELECT id FROM exhibitions WHERE title = ?', (museum_title,)).fetchone()
+                        ex_id = exhib['id'] if exhib else 99
+                        ticket_hash = "FAIL-" + str(uuid.uuid4())[:4].upper()
+                        conn.execute(
+                            'INSERT INTO bookings (user_id, visitor_name, visit_date, exhibition_id, num_tickets, total_price, ticket_hash, status, razorpay_order_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            (user_id, visitor_name, visit_date, ex_id, count, total, ticket_hash, status.capitalize(), final_order_id or link_id)
+                        )
+                        conn.commit()
+                    conn.close()
                     return jsonify({'success': True, 'paid': False, 'status': status, 'message': f'Payment link {status}'})
                 else:
                     # Check if there are any failed payments for this link
@@ -553,17 +578,30 @@ def check_payment_status():
                         p_items = payments.get('items', [])
                         
                         if p_items:
-                            # If ANY payment in the last 10 attempts failed AND none succeeded, 
-                            # we might want to flag it. But specifically, check the MOST RECENT.
                             recent = p_items[0]
                             print(f"DEBUG: Recent Payment ID: {recent['id']} | Status: {recent['status']}")
                             if recent['status'] == 'failed':
+                                # Record failed attempt
+                                conn = get_db_connection()
+                                existing = conn.execute('SELECT id FROM bookings WHERE razorpay_order_id = ?', (target_order_id or link_id,)).fetchone()
+                                if not existing:
+                                    exhib = conn.execute('SELECT id FROM exhibitions WHERE title = ?', (museum_title,)).fetchone()
+                                    ex_id = exhib['id'] if exhib else 99
+                                    ticket_hash = "FAIL-" + str(uuid.uuid4())[:4].upper()
+                                    conn.execute(
+                                        'INSERT INTO bookings (user_id, visitor_name, visit_date, exhibition_id, num_tickets, total_price, ticket_hash, status, razorpay_order_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                        (user_id, visitor_name, visit_date, ex_id, count, total, ticket_hash, 'Failed', target_order_id or link_id)
+                                    )
+                                    conn.commit()
+                                conn.close()
+
                                 return jsonify({
                                     'success': True, 
                                     'paid': False, 
                                     'status': 'failed', 
                                     'message': recent.get('error_description', 'Payment Failed')
                                 })
+
                     except Exception as e:
                         print(f"Non-critical: Error fetching payments: {str(e)}")
             except Exception as e:
@@ -612,5 +650,30 @@ def check_payment_status():
         print(f"Poll Error: {str(e)}")
         return jsonify({'success': False, 'message': str(e)}), 500
 
+@app.route('/my-bookings')
+def my_bookings():
+    if 'user_id' not in session:
+        flash('Please log in to view your bookings.')
+        return redirect(url_for('login'))
+        
+    user_id = session['user_id']
+    username = session.get('username', 'Guest')
+    
+    conn = get_db_connection()
+    bookings = conn.execute('''
+        SELECT b.*, e.title as museum_name, e.description as museum_desc
+        FROM bookings b
+        JOIN exhibitions e ON b.exhibition_id = e.id
+        WHERE b.user_id = ?
+        ORDER BY b.id DESC
+    ''', (user_id,)).fetchall()
+    conn.close()
+    
+    return render_template('my_bookings.html', 
+                           bookings=bookings, 
+                           logged_in=True, 
+                           username=username)
+
 if __name__ == '__main__':
+
     app.run(debug=True, port=5000)

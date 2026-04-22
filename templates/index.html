@@ -6,12 +6,41 @@
     <title>MuseumBot | AI-Driven Ticketing Platform</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Marcellus&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script>
         window.RZP_KEY_ID = "{{ rzp_key_id }}";
+        
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            const isLight = body.classList.toggle('light-mode');
+            
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            icon.className = isLight ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                document.body.classList.add('light-mode');
+                const icon = document.getElementById('themeIcon');
+                if(icon) icon.className = 'fa-solid fa-sun';
+            }
+        });
     </script>
+
+
 </head>
 <body>
+    <!-- TOP ANNOUNCEMENT BAR -->
+    <div class="top-announcement">
+        <div class="announcement-content">
+            <span><i class="fa-solid fa-bullhorn"></i> <strong>ALERT:</strong> New exhibition "Visions of the Mughal Era" is now open for bookings.</span>
+            <span><i class="fa-solid fa-clock"></i> <strong>HOURS:</strong> Museum hours extended until 8 PM this weekend.</span>
+            <span><i class="fa-solid fa-star"></i> <strong>SPECIAL:</strong> Get 20% off on Group Bookings of 10+ visitors.</span>
+        </div>
+    </div>
+
     <!-- NAVIGATION -->
     <nav id="navbar">
         <a class="logo" href="/">Museum<span>Bot</span></a>
@@ -26,36 +55,122 @@
                     <li><a href="javascript:void(0)" onclick="discoverItem('kolkata')">Indian Museum Kolkata</a></li>
                     <li><a href="javascript:void(0)" onclick="discoverItem('mumbai')">CSMVS Mumbai</a></li>
                     <li><a href="javascript:void(0)" onclick="discoverItem('hyderabad')">Salar Jung Hyderabad</a></li>
+                    <li><a href="javascript:void(0)" onclick="discoverItem('ahmedabad')">Science City Ahmedabad</a></li>
+
                 </ul>
+            </li>
+            <li>
+                <button id="themeToggle" class="theme-toggle-btn" onclick="toggleTheme()">
+                    <i id="themeIcon" class="fa-solid fa-moon"></i>
+                </button>
             </li>
  
             {% if logged_in %}
             <li class="nav-user-info">
                 <span class="user-name"><i class="fa-solid fa-circle-user"></i> {{ username }}</span>
+                <a href="/my-bookings" class="nav-cta bookings-btn"><i class="fa-solid fa-ticket"></i> My Bookings</a>
                 <a href="/logout" class="nav-cta logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
             </li>
             {% else %}
             <li><a href="/login" class="nav-cta">Login / Register</a></li>
             {% endif %}
         </ul>
-</nav>
+    </nav>
+
 
     <!-- HERO SECTION -->
     <header class="hero-section">
         <div class="hero-content">
-            <div class="hero-badge reveal">
+            <div class="hero-badge reveal active">
                 <span class="badge-dot"></span>
                 SIH 1648 · NCSM · Ministry of Culture
             </div>
-            <h1 class="reveal">Experience <em>Ancient India</em></h1>
-            <p class="reveal">An intelligent multilingual chatbot platform that handles ticket booking, show reservations, and visitor queries — eliminating queues across all NCSM museums.</p>
-            <div class="hero-actions reveal">
+            <h1 class="reveal active">Experience <em>Ancient India</em></h1>
+            <p class="reveal active">An intelligent multilingual chatbot platform that handles ticket booking, show reservations, and visitor queries — eliminating queues across all NCSM museums.</p>
+            <div class="hero-actions reveal active">
                 <button class="cta-btn" onclick="openBooking()">🎫 Book Tickets Now</button>
             </div>
         </div>
     </header>
+
+
+    <!-- ANNOUNCEMENTS TICKER / SECTION -->
+    <section class="announcement-bar">
+        <div class="announcement-track">
+            <span><i class="fa-solid fa-bullhorn"></i> <strong>LATEST:</strong> Special Exhibition on "Ancient Indian Astronomy" now open at National Science Centre Delhi.</span>
+            <span><i class="fa-solid fa-circle-info"></i> International Museum Day celebrations starting May 18th across all NCSM units.</span>
+            <span><i class="fa-solid fa-star"></i> New "Space Odyssey" show launched at Science City Ahmedabad.</span>
+        </div>
+    </section>
+
+    <section class="news-section">
+        <div class="section-header-row">
+            <div>
+                <span class="section-tag reveal">Stay Updated</span>
+                <h2 class="reveal">Latest <em>Announcements</em></h2>
+            </div>
+            <div class="news-filter-box reveal">
+                <label for="newsMuseumFilter"><i class="fa-solid fa-filter"></i> Filter by Museum:</label>
+                <select id="newsMuseumFilter" onchange="filterNews()">
+                    <option value="all">All Museums</option>
+                    {% for museum in museums %}
+                    <option value="{{ museum.id }}">{{ museum.title.split(',')[0] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        
+        <div class="news-grid" id="newsGrid">
+            {% for news in announcements %}
+            <div class="news-card reveal" data-museum-id="{{ news.museum_id or 'all' }}">
+                <div class="news-header">
+                    <div class="news-date">{{ news.date_published }}</div>
+                    {% if news.museum_id %}
+                        {% for museum in museums %}
+                            {% if museum.id == news.museum_id %}
+                                <div class="news-museum-badge">{{ museum.title.split(',')[0] }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="news-museum-badge global">NCSM Global</div>
+                    {% endif %}
+                </div>
+                <h3>{{ news.title }}</h3>
+                <p>{{ news.description }}</p>
+                <div class="news-footer">
+                    <a href="{{ news.redirect_url }}" target="_blank" class="news-link">Read More <i class="fa-solid fa-up-right-from-square"></i></a>
+                    {% if news.museum_id %}
+                        {% for museum in museums %}
+                            {% if museum.id == news.museum_id %}
+                                <div class="news-price-tag">Entry: ₹{{ museum.price }}</div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <script>
+            function filterNews() {
+                const filterValue = document.getElementById('newsMuseumFilter').value;
+                const cards = document.querySelectorAll('.news-card');
+                
+                cards.forEach(card => {
+                    const museumId = card.getAttribute('data-museum-id');
+                    if (filterValue === 'all' || museumId === filterValue || museumId === 'all') {
+                        card.style.display = 'flex';
+                        card.classList.add('reveal');
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            }
+        </script>
+    </section>
     
     <!-- EXPLORE HERITAGE SITES -->
+
     <section class="heritage-section">
         <span class="section-tag reveal">Premier Destinations</span>
         <h2 class="reveal">Explore <em>Heritage Sites</em></h2>
@@ -92,7 +207,17 @@
                     <p>A premier heritage landmark known for its Indo-Saracenic architecture and world-class exhibitions.</p>
                 </div>
             </div>
+            <div class="heritage-card reveal" onclick="discoverItem('ahmedabad')">
+                <div class="heritage-card-badge">Ahmedabad</div>
+                <img src="/static/images/science_city_ahmedabad.png" alt="Science City Ahmedabad" class="heritage-card-img">
+                <div class="heritage-card-content">
+                    <h3>Science City</h3>
+                    <p>An immersive scientific frontier featuring the Robotics Gallery, Space Odyssey, and more.</p>
+                </div>
+            </div>
+
         </div>
+
     </section>
 
     <!-- CINEMATIC SHOWCASE -->
@@ -174,15 +299,87 @@
         <h2 class="reveal">Essential <em>Guidelines &amp; Schedule</em></h2>
         <div class="guide-grid">
             <div class="guide-item reveal">
-                <i class="fa-solid fa-clock"></i>
-                <h3>Operational Hours</h3>
-                <ul>
-                    <li>Open Daily: 09:30 AM - 06:00 PM</li>
-                    <li>Ticket counter closes at 05:30 PM</li>
-                    <li>Planetarium Shows: Hourly from 11:00 AM</li>
-                    <li>Closed only on Holi & Diwali</li>
+                <div class="live-status-container">
+                    <i class="fa-solid fa-clock"></i>
+                    <div id="museumStatusBadge" class="status-badge-live">Checking Status...</div>
+                </div>
+                <h3>Schedule Explorer</h3>
+                
+                <div class="museum-picker-mini">
+                    <select id="scheduleMuseumSelect" onchange="updateMuseumStatus()">
+                        {% for museum in museums %}
+                        <option value="{{ museum.id }}" 
+                                data-open="{{ museum.opening_time }}" 
+                                data-close="{{ museum.closing_time }}"
+                                data-holidays="{{ museum.holidays }}">
+                            {{ museum.title.split(',')[0] }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <ul class="hours-list">
+                    <li><span class="day-label">Open:</span> <span id="displayOpen">09:30 AM</span> - <span id="displayClose">06:00 PM</span></li>
+                    <li id="closingCountdown" style="color: var(--primary-gold); font-weight: 600; font-size: 0.8rem; margin: 5px 0 10px;"></li>
+                    <li><span class="day-label">Holidays:</span> <span id="displayHolidays">Holi & Diwali</span></li>
                 </ul>
             </div>
+
+            <script>
+                function updateMuseumStatus() {
+                    const select = document.getElementById('scheduleMuseumSelect');
+                    const selected = select.options[select.selectedIndex];
+                    
+                    const openStr = selected.getAttribute('data-open');
+                    const closeStr = selected.getAttribute('data-close');
+                    const holidays = selected.getAttribute('data-holidays');
+                    
+                    document.getElementById('displayOpen').innerText = openStr + " AM";
+                    document.getElementById('displayClose').innerText = (parseInt(closeStr.split(':')[0]) > 12 ? (parseInt(closeStr.split(':')[0]) - 12) + ":" + closeStr.split(':')[1] + " PM" : closeStr + " AM");
+                    document.getElementById('displayHolidays').innerText = holidays;
+
+                    const now = new Date();
+                    const hours = now.getHours();
+                    const minutes = now.getMinutes();
+                    const currentTime = hours + minutes / 60;
+                    
+                    const openTime = parseFloat(openStr.split(':')[0]) + parseFloat(openStr.split(':')[1])/60;
+                    const closeTime = parseFloat(closeStr.split(':')[0]) + parseFloat(closeStr.split(':')[1])/60;
+                    
+                    const badge = document.getElementById('museumStatusBadge');
+                    const countdown = document.getElementById('closingCountdown');
+                    
+                    // Simple Holiday Check (e.g. "Monday")
+                    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    const currentDay = days[now.getDay()];
+                    const isHoliday = holidays.toLowerCase().includes(currentDay.toLowerCase());
+
+                    if (isHoliday) {
+                        badge.innerText = "Closed (Holiday)";
+                        badge.className = "status-badge-live status-closed";
+                        countdown.innerText = `Closed every ${currentDay}`;
+                    } else if (currentTime >= openTime && currentTime < closeTime) {
+                        badge.innerText = "Currently Open";
+                        badge.className = "status-badge-live status-open";
+                        
+                        const closeHour = parseInt(closeStr.split(':')[0]);
+                        const closeMin = parseInt(closeStr.split(':')[1]);
+                        const diffMs = new Date(now.getFullYear(), now.getMonth(), now.getDate(), closeHour, closeMin, 0) - now;
+                        const diffHrs = Math.floor(diffMs / 3600000);
+                        const diffMins = Math.floor((diffMs % 3600000) / 60000);
+                        countdown.innerText = `Closes in ${diffHrs}h ${diffMins}m`;
+                    } else {
+                        badge.innerText = "Currently Closed";
+                        badge.className = "status-badge-live status-closed";
+                        countdown.innerText = `Opens at ${openStr} AM`;
+                    }
+                }
+                
+                setInterval(updateMuseumStatus, 60000);
+                window.addEventListener('load', updateMuseumStatus);
+            </script>
+
+
             <div class="guide-item reveal">
                 <i class="fa-solid fa-clipboard-list"></i>
                 <h3>Visitor Policy</h3>
@@ -265,32 +462,51 @@
     </section>
 
     <!-- HOW IT WORKS -->
-    <section style="background: var(--bg-surface);">
+    <section id="journey" class="visitor-journey">
         <span class="section-tag reveal">Visitor Journey</span>
         <h2 class="reveal">Book in <em>4 steps</em></h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; margin-top: 60px;">
-            <div class="reveal">
-                <div style="width: 50px; height: 50px; border: 1px solid var(--primary-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display'; font-size: 1.5rem; color: var(--primary-gold); margin-bottom: 20px;">1</div>
-                <h4 style="margin-bottom: 10px; color: var(--text-primary);">Establish Contact</h4>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">Launch the booking portal or chat with our Virtual Curator.</p>
+        
+        <div class="journey-container">
+            <div class="journey-line"></div>
+            
+            <div class="journey-step reveal">
+                <div class="step-badge">
+                    <i class="fa-solid fa-comments"></i>
+                    <span class="step-count">1</span>
+                </div>
+                <h3>Establish Contact</h3>
+                <p>Launch the booking portal or chat with our Virtual Curator.</p>
             </div>
-            <div class="reveal">
-                <div style="width: 50px; height: 50px; border: 1px solid var(--primary-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display'; font-size: 1.5rem; color: var(--primary-gold); margin-bottom: 20px;">2</div>
-                <h4 style="margin-bottom: 10px; color: var(--text-primary);">Personalize Visit</h4>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">Choose your museum, desired date, and number of guests.</p>
+
+            <div class="journey-step reveal">
+                <div class="step-badge">
+                    <i class="fa-solid fa-calendar-check"></i>
+                    <span class="step-count">2</span>
+                </div>
+                <h3>Personalize Visit</h3>
+                <p>Choose your museum, desired date, and number of guests.</p>
             </div>
-            <div class="reveal">
-                <div style="width: 50px; height: 50px; border: 1px solid var(--primary-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display'; font-size: 1.5rem; color: var(--primary-gold); margin-bottom: 20px;">3</div>
-                <h4 style="margin-bottom: 10px; color: var(--text-primary);">Secure Ledger</h4>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">Finalize your contribution via our secure multi-method gateway.</p>
+
+            <div class="journey-step reveal">
+                <div class="step-badge">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span class="step-count">3</span>
+                </div>
+                <h3>Secure Ledger</h3>
+                <p>Finalize your contribution via our secure multi-method gateway.</p>
             </div>
-            <div class="reveal">
-                <div style="width: 50px; height: 50px; border: 1px solid var(--primary-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display'; font-size: 1.5rem; color: var(--primary-gold); margin-bottom: 20px;">4</div>
-                <h4 style="margin-bottom: 10px; color: var(--text-primary);">Enter Gallery</h4>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">Receive your digital QR code instantly for zero-queue entry.</p>
+
+            <div class="journey-step reveal">
+                <div class="step-badge">
+                    <i class="fa-solid fa-ticket-simple"></i>
+                    <span class="step-count">4</span>
+                </div>
+                <h3>Enter Gallery</h3>
+                <p>Receive your digital QR code instantly for zero-queue entry.</p>
             </div>
         </div>
     </section>
+
 
 
 
@@ -383,9 +599,11 @@
                                     <option value="">Select a Heritage Site…</option>
                                     <option>National Science Centre, New Delhi</option>
                                     <option>Nehru Science Centre, Mumbai</option>
-                                    <option>BITM Kolkata</option>
+                                    <option>Indian Museum, Kolkata</option>
+                                    <option>Salar Jung Museum, Hyderabad</option>
                                     <option>Science City, Ahmedabad</option>
                                 </select>
+
                             </div>
                         </div>
                         <div class="form-row">
@@ -434,7 +652,7 @@
                             <label class="form-label">Member Count</label>
                             <div class="qty-selector-new">
                                 <button onclick="changeQty(-1)"><i class="fa-solid fa-minus"></i></button>
-                                <input type="number" id="qtyVal" value="1" min="1" onchange="manualQty()" style="background: transparent; border: none; color: white; font-size: 1.4rem; font-weight: 700; width: 60px; text-align: center; outline: none; -moz-appearance: textfield;">
+                                <input type="number" id="qtyVal" value="1" min="1" onchange="manualQty()" class="qty-input-modern">
                                 <button onclick="changeQty(1)"><i class="fa-solid fa-plus"></i></button>
                             </div>
                         </div>
@@ -573,38 +791,65 @@
         </button>
     </div>
 
-
-
-
     <!-- FOOTER -->
-    <footer>
-        <div class="footer-grid">
-            <div class="footer-brand">
-                <a class="logo" href="#">Museum<span>Bot</span></a>
-                <p>Intelligent chatbot-based helpdesk for museum visitors. Built for SIH 1648 under the National Council of Science Museums.</p>
+    <footer class="heritage-footer">
+        <div class="footer-container">
+            <div class="footer-col about-col">
+                <a class="logo" href="/">Museum<span>Bot</span></a>
+                <p>NCSM's digital gateway to India's cultural and scientific heritage. Empowering visitors through seamless AI curation and smart ticketing.</p>
+                <div class="social-links">
+                    <a href="https://www.instagram.com/lpuuniversity/" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://twitter.com/lpuuniversity" target="_blank"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="https://www.facebook.com/LPUUniversity/" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="https://www.linkedin.com/school/lovely-professional-university/" target="_blank"><i class="fa-brands fa-linkedin"></i></a>
+                </div>
             </div>
+
+
             <div class="footer-col">
-                <h4>Platform</h4>
-                <ul class="footer-links">
-                    <li><a href="#">Web Booking</a></li>
-                    <li><a href="#">Mobile App</a></li>
-                    <li><a href="#">Kiosk</a></li>
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#artifacts">The Collections</a></li>
+                    <li><a href="#how">Visitor Guide</a></li>
+                    <li><a href="/bookings">My Bookings</a></li>
                 </ul>
             </div>
+
             <div class="footer-col">
-                <h4>Legal</h4>
-                <ul class="footer-links">
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Use</a></li>
-                    <li><a href="#">NCSM Docs</a></li>
+                <h3>Museums</h3>
+                <ul>
+                    <li><a href="#">National Museum</a></li>
+                    <li><a href="#">Indian Museum</a></li>
+                    <li><a href="#">Salar Jung</a></li>
+                    <li><a href="#">CSMVS Mumbai</a></li>
+                    <li><a href="#">Science City Ahmedabad</a></li>
                 </ul>
             </div>
+
+
+            <div class="footer-col contact-col">
+                <h3>Contact Us</h3>
+                <p><i class="fa-solid fa-location-dot"></i> Lovely Professional University, Jalandhar - Delhi, G.T. Road, Phagwara, Punjab</p>
+                <p><i class="fa-solid fa-envelope"></i> info@lpu.co.in</p>
+                <p><i class="fa-solid fa-phone"></i> +91 1824 404404</p>
+            </div>
+
+
         </div>
+
         <div class="footer-bottom">
-            <span>© 2026 MuseumBot · Smart India Hackathon</span>
-            <span>NCSM · Ministry of Culture · Govt. of India</span>
+            <div class="footer-bottom-content">
+                <p>&copy; 2026 National Council of Science Museums. All Rights Reserved.</p>
+                <div class="footer-legal">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Accessibility</a>
+                </div>
+            </div>
         </div>
     </footer>
+
 
 
     <!-- DISCOVERY OVERLAY (Articles) -->

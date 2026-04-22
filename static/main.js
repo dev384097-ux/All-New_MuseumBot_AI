@@ -661,6 +661,15 @@ function handleOverlayClick(e) {
 // --- ARTIFACT DISCOVERY SYSTEM ---
 
 const ARTICLE_DATA = {
+    'ahmedabad': {
+        title: "Science City Ahmedabad",
+        tag: "Scientific Frontier",
+        image: "/static/images/science_city_ahmedabad.png",
+        era: "Modern Era",
+        location: "Hebebat, Ahmedabad",
+        text: "<p>Gujarat Science City is a premier scientific institution designed to inspire the next generation of innovators. Spread over 107 hectares, it is a hub of technological marvels and immersive learning experiences.</p><p>The center's crown jewel is the <strong>Robotics Gallery</strong>, a three-story architectural marvel featuring over 200 robots across different sectors including medicine, space, and defense. Equally stunning is the <strong>Aquatic Gallery</strong>, which houses a 28-meter long shark tunnel and diverse marine life from across the globe.</p><p>With its iconic Space Odyssey planetarium and interactive 'Hall of Science', Science City Ahmedabad stands as a testament to India's commitment to scientific progress and public engagement with technology.</p>"
+    },
+
     // HERITAGE SITES
     'delhi': {
         title: "National Museum New Delhi",
@@ -828,15 +837,52 @@ window.addEventListener('scroll', () => {
     }
     lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
 
-    // Visual State: Transparent at top, solid while scrolling
-    if (scrollTop > 50) {
-        nav.style.padding = '12px 8%';
-        nav.style.background = 'rgba(10, 10, 9, 0.85)';
-        nav.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+    // Navbar Scroll Logic
+    const announcement = document.querySelector('.top-announcement');
+    const isAnnouncementVisible = announcement && !announcement.classList.contains('hidden');
+
+    if (window.scrollY > 50) {
+        nav.classList.add('nav-scrolled');
+        if (isAnnouncementVisible) {
+            nav.style.top = '0'; // Move nav to top when scrolling even if announcement is there
+        }
     } else {
-        nav.style.padding = '20px 8%';
-        nav.style.background = 'transparent';
-        nav.style.boxShadow = 'none';
+        nav.classList.remove('nav-scrolled');
+        if (isAnnouncementVisible) {
+            nav.style.top = '35px'; // Back to below announcement
+        } else {
+            nav.style.top = '0';
+        }
     }
 });
 
+// Auto-hide announcement bar after 50 seconds
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const announcement = document.querySelector('.top-announcement');
+        const nav = document.getElementById('navbar');
+        if (announcement) {
+            announcement.classList.add('hidden');
+            // Move navbar to top permanently
+            if (nav) {
+                nav.style.top = '0';
+            }
+        }
+    }, 50000); // 50 seconds
+});
+// Reveal Animation Observer
+const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+        }
+    });
+}, {
+    threshold: 0.15
+});
+
+window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.reveal').forEach(el => {
+        revealObserver.observe(el);
+    });
+});

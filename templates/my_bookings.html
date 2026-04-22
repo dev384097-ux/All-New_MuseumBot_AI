@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Bookings | MuseumBot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Marcellus&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .bookings-container {
+            padding: 140px 8% 80px;
+            min-height: 90vh;
+            background: radial-gradient(circle at top right, rgba(197, 160, 89, 0.05), transparent 400px);
+        }
+
+        .bookings-header {
+            margin-bottom: 70px;
+            text-align: center;
+        }
+
+        .bookings-header h2 {
+            font-size: 3.5rem;
+            margin-top: 10px;
+        }
+
+        .bookings-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 40px;
+            perspective: 1000px;
+        }
+
+        /* TICKET STYLE CARD */
+        .booking-card {
+            background: linear-gradient(135deg, rgba(30, 30, 45, 0.9), rgba(15, 15, 25, 0.95));
+            border: 1px solid var(--border-gold);
+            border-radius: 24px;
+            overflow: visible; /* For the notches */
+            display: flex;
+            flex-direction: column;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        .booking-card:hover {
+            transform: translateY(-12px) rotateX(2deg);
+            border-color: var(--primary-gold);
+            box-shadow: 0 25px 50px rgba(197, 160, 89, 0.15);
+        }
+
+        /* Ticket Notches */
+        .booking-card::before, .booking-card::after {
+            content: '';
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: var(--bg-deep);
+            border-radius: 50%;
+            top: 70%;
+            transform: translateY(-50%);
+            z-index: 5;
+            border: 1px solid var(--border-gold);
+        }
+
+        .booking-card::before { left: -16px; border-left: none; }
+        .booking-card::after { right: -16px; border-right: none; }
+
+        .booking-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .booking-status {
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-size: 0.6rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+
+
+        .status-confirmed {
+            background: linear-gradient(90deg, #2ec4b6, #209c91);
+            color: white;
+            border: none;
+        }
+
+        .status-pending {
+            background: linear-gradient(90deg, #c5a059, #8b6d31);
+            color: white;
+            border: none;
+        }
+
+        .status-failed, .status-cancelled {
+            background: linear-gradient(90deg, #6d5c5c, #4a3b3b);
+            color: rgba(255,255,255,0.8);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+
+        .status-expired {
+            background: linear-gradient(90deg, #6b7280, #374151);
+            color: white;
+            border: none;
+        }
+
+
+        .booking-content {
+            padding: 35px 35px 25px;
+            flex-grow: 1;
+        }
+
+        .booking-museum {
+            font-family: var(--font-heading);
+            font-size: 1.6rem;
+            color: var(--primary-gold);
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .museum-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0;
+            display: block;
+            font-style: italic;
+        }
+
+        .booking-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed rgba(197, 160, 89, 0.2);
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .detail-item i {
+            color: var(--primary-gold);
+            font-size: 1rem;
+            margin-top: 3px;
+            opacity: 0.8;
+        }
+
+        .detail-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        /* Perforated Divider */
+        .ticket-divider {
+            height: 1px;
+            border-top: 2px dashed rgba(197, 160, 89, 0.3);
+            margin: 0 30px;
+            position: relative;
+        }
+
+        .booking-qr-section {
+            padding: 30px 35px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom-left-radius: 24px;
+            border-bottom-right-radius: 24px;
+        }
+
+        .qr-placeholder {
+            width: 90px;
+            height: 90px;
+            background: white;
+            padding: 8px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .booking-card:hover .qr-placeholder {
+            transform: scale(1.05);
+        }
+
+        .qr-placeholder i {
+            color: #111;
+            font-size: 2.5rem;
+        }
+
+        .ticket-ref-box {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ticket-hash {
+            font-family: 'Marcellus', serif;
+            font-size: 1.4rem;
+            color: var(--primary-gold);
+            letter-spacing: 3px;
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(197, 160, 89, 0.3);
+        }
+
+        .no-bookings {
+            text-align: center;
+            padding: 100px 20px;
+            grid-column: 1 / -1;
+            background: rgba(255,255,255,0.02);
+            border-radius: 30px;
+            border: 1px dashed var(--border-gold);
+        }
+
+        .no-bookings i {
+            font-size: 5rem;
+            background: linear-gradient(135deg, var(--primary-gold), #8b6d31);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 25px;
+        }
+
+        .no-bookings p {
+            font-size: 1.4rem;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            font-family: var(--font-heading);
+        }
+    </style>
+
+</head>
+<body>
+    <!-- NAVIGATION -->
+    <nav id="navbar">
+        <a class="logo" href="/">Museum<span>Bot</span></a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li class="nav-user-info">
+                <span class="user-name"><i class="fa-solid fa-circle-user"></i> {{ username }}</span>
+                <a href="/my-bookings" class="nav-cta bookings-btn"><i class="fa-solid fa-ticket"></i> My Bookings</a>
+                <a href="/logout" class="nav-cta logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="bookings-container">
+        <div class="bookings-header">
+            <span class="section-tag">Your History</span>
+            <h2>My <em>Bookings</em></h2>
+        </div>
+
+        <div class="bookings-grid">
+            {% if bookings %}
+                {% for booking in bookings %}
+                <div class="booking-card">
+                    <div class="booking-content">
+                        <div class="booking-header-row">
+                            <div style="flex-grow: 1;">
+                                <div class="booking-museum">{{ booking.museum_name }}</div>
+                                <span class="museum-sub">NCSM Heritage Site</span>
+                            </div>
+                            <div class="booking-status status-{{ booking.status.lower().replace(' ', '-') }}">
+                                {{ booking.status }}
+                            </div>
+                        </div>
+                        
+                        <div class="booking-details">
+                            <div class="detail-item">
+                                <i class="fa-solid fa-user-tag"></i>
+                                <div class="detail-info">
+                                    <span class="detail-label">Lead Visitor</span>
+                                    <span class="detail-value">{{ booking.visitor_name }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fa-solid fa-calendar-day"></i>
+                                <div class="detail-info">
+                                    <span class="detail-label">Entry Date</span>
+                                    <span class="detail-value">{{ booking.visit_date }}</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fa-solid fa-ticket-simple"></i>
+                                <div class="detail-info">
+                                    <span class="detail-label">Headcount</span>
+                                    <span class="detail-value">{{ booking.num_tickets }} Persons</span>
+                                </div>
+                            </div>
+                            <div class="detail-item">
+                                <i class="fa-solid fa-indian-rupee-sign"></i>
+                                <div class="detail-info">
+                                    <span class="detail-label">Total Paid</span>
+                                    <span class="detail-value">₹{{ "%.2f"|format(booking.total_price) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="ticket-divider"></div>
+                    
+                    <div class="booking-qr-section">
+                        <div class="ticket-ref-box">
+                            <span class="detail-label">Ticket ID</span>
+                            <div class="ticket-hash">{{ booking.ticket_hash }}</div>
+                        </div>
+                        <div class="qr-placeholder">
+                            <i class="fa-solid fa-qrcode"></i>
+                        </div>
+                    </div>
+                </div>
+
+                {% endfor %}
+            {% else %}
+                <div class="no-bookings">
+                    <i class="fa-solid fa-ticket-simple"></i>
+                    <p>You haven't booked any tickets yet.</p>
+                    <a href="/" class="cta-btn">Book Your First Ticket</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="footer-bottom">
+            <span>© 2026 MuseumBot · Smart India Hackathon</span>
+            <span>NCSM · Ministry of Culture · Govt. of India</span>
+        </div>
+    </footer>
+
+    <script src="/static/main.js"></script>
+</body>
+</html>
