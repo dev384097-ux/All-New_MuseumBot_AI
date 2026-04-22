@@ -38,7 +38,7 @@ def send_otp_email(email, name, otp):
             configuration.api_key['api-key'] = brevo_key
             api_instance = sib_api_v3_sdk.TransactionalEmailsApi(sib_api_v3_sdk.ApiClient(configuration))
             
-            sender_email = os.getenv('SENDER_EMAIL', 'guptadev853@gmail.com').strip()
+            sender_email = os.getenv('SENDER_EMAIL', 'botonlinemuseum@gmail.com').strip()
             send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
                 sender={"name": "MuseumBot AI", "email": sender_email},
                 to=[{"email": email, "name": name}],
@@ -57,7 +57,7 @@ def send_otp_email(email, name, otp):
         print("DEBUG: Using SendGrid API fallback...")
         try:
             sg_client = SendGridAPIClient(sendgrid_key)
-            sender = os.getenv('SENDER_EMAIL', 'guptadev853@gmail.com').strip()
+            sender = os.getenv('SENDER_EMAIL', 'botonlinemuseum@gmail.com').strip()
             message = SendGridMail(
                 from_email=sender,
                 to_emails=email,
