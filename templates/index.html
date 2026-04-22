@@ -7,9 +7,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Marcellus&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script id="museums-data" type="application/json">{{ museums | tojson | safe }}</script>
     <script>
         window.RZP_KEY_ID = "{{ rzp_key_id }}";
-        window.MUSEUMS_DATA = {{ museums | tojson | safe }};
+        window.MUSEUMS_DATA = JSON.parse(document.getElementById('museums-data').textContent);
         
         function toggleTheme() {
             const body = document.body;
