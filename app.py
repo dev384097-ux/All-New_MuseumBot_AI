@@ -19,6 +19,7 @@ import qrcode
 import io
 import base64
 import time
+from datetime import datetime, timedelta
 
 # --- UNIFIED EMAIL SERVICE ---
 def send_otp_email(email, name, otp):
@@ -218,6 +219,38 @@ def home():
                           rzp_key_id=RAZORPAY_KEY_ID,
                           announcements=announcements,
                           museums=museums)
+
+@app.route('/api/curate-news')
+def curate_news_api():
+    """Endpoint to trigger AI news search and auto-insertion."""
+    try:
+        conn = get_db_connection()
+        museums = conn.execute('SELECT id, title FROM exhibitions').fetchall()
+        if not museums:
+            conn.close()
+            return jsonify({'success': False, 'message': 'No museums found'})
+            
+        # Select a museum or global heritage
+        target_museum = random.choice(museums)
+        target_title = target_museum['title']
+        target_id = target_museum['id']
+        
+        bot = MuseumChatbot()
+        news_item = bot.curate_news(target_title)
+        
+        if news_item:
+            conn.execute(
+                'INSERT INTO announcements (museum_id, title, description, date_published, redirect_url) VALUES (?, ?, ?, ?, ?)',
+                (target_id, news_item['title'], news_item['description'], news_item['date'], news_item['url'])
+            )
+            conn.commit()
+            conn.close()
+            return jsonify({'success': True, 'news': news_item})
+        
+        conn.close()
+        return jsonify({'success': False, 'message': 'AI failed to find news'})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
 
 
 

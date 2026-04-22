@@ -870,6 +870,24 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        // Automatic AI News Curation Trigger
+        window.addEventListener('load', () => {
+            const announcementCount = document.querySelectorAll('.news-card').length;
+            if (announcementCount < 3) {
+                console.log("INFO: Triggering AI News Curator for fresh content...");
+                fetch('/api/curate-news')
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log("SUCCESS: AI added new news item:", data.news.title);
+                            // Optional: Refresh page or inject card. For now, it will show on next visit.
+                        }
+                    })
+                    .catch(e => console.error("ERROR: AI Curation trigger failed:", e));
+            }
+        });
+    </script>
     <script src="/static/main.js"></script>
 </body>
 </html>
