@@ -32,6 +32,9 @@ A production-grade, multilingual AI chatbot designed for Indian museums. This Ca
 
 ## 📁 Project Architecture
 
+> [!TIP]
+> For a deep dive into the technical design, data flows, and component diagrams, see the [Detailed System Architecture](SYSTEM_ARCHITECTURE.md).
+
 | File / Directory | Role |
 | :--- | :--- |
 | `app.py` | Main Flask entry point; handles Auth, Payment APIs, and QR generation. |

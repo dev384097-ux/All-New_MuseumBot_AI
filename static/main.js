@@ -164,7 +164,8 @@ function autoUpdateQty() {
 }
 
 function updateSummary() {
-    const museum = document.getElementById('museumSelect').value || "Not Selected";
+    const selectEl = document.getElementById('museumSelect');
+    const museum = selectEl.options[selectEl.selectedIndex]?.text || "Not Selected";
     let dateStr = document.getElementById('visitDate').value || "Not Selected";
     const visitor = document.getElementById('visitorName').value || "Guest";
     const total = selectedPrice * qty;
@@ -262,11 +263,13 @@ function openPaymentModal(total, museumTitle, count, visitDate, visitorName) {
 }
 
 async function processManualPayment() {
-    const museum = document.getElementById('museumSelect').value;
+    const selectEl = document.getElementById('museumSelect');
+    const museumValue = selectEl.value;
+    const museum = selectEl.options[selectEl.selectedIndex]?.text || "";
     const visitor = document.getElementById('visitorName').value;
     const total = selectedPrice * qty;
 
-    if (!museum || museum === "") {
+    if (!museumValue || museumValue === "") {
         alert("Please select a destination museum.");
         goStep(1);
         return;
